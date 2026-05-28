@@ -25,6 +25,7 @@ export class EventList implements OnInit {
   
   searchTerm: string = '';
   sortBy: string = 'id-desc';
+  filterCategory: string = 'all';
   
   loading: boolean = true;
   errorMessage: string = '';
@@ -58,9 +59,23 @@ export class EventList implements OnInit {
   }
 
   applyFilterAndSort() {
-    const term = this.searchTerm.trim().toLowerCase();
     let result = [...this.events];
-    
+
+    // 1. Category Filter
+    if (this.filterCategory !== 'all') {
+      if (this.filterCategory === 'none') {
+        result = result.filter(e => !e.category_a && !e.category_b && !e.category_c);
+      } else if (this.filterCategory === 'a') {
+        result = result.filter(e => e.category_a);
+      } else if (this.filterCategory === 'b') {
+        result = result.filter(e => e.category_b);
+      } else if (this.filterCategory === 'c') {
+        result = result.filter(e => e.category_c);
+      }
+    }
+
+    // 2. Search Text Filter
+    const term = this.searchTerm.trim().toLowerCase();
     if (term) {
       result = result.filter(e => 
         e.id.toString().includes(term) ||
@@ -69,6 +84,7 @@ export class EventList implements OnInit {
       );
     }
 
+    // 3. Sorting
     result.sort((a, b) => {
       switch (this.sortBy) {
         case 'id-asc':

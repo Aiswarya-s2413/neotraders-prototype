@@ -18,16 +18,31 @@
         <input type="text" [(ngModel)]="searchTerm" (input)="applyFilterAndSort()" placeholder="Search events by Name, Notes, ID..." class="search-input" style="width: 320px;">
       </div>
 
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Sort By:</span>
-        <select [(ngModel)]="sortBy" (change)="applyFilterAndSort()" class="sort-select">
-          <option value="id-desc">ID (Newest First)</option>
-          <option value="id-asc">ID (Oldest First)</option>
-          <option value="name-asc">Name (A-Z)</option>
-          <option value="name-desc">Name (Z-A)</option>
-          <option value="date-desc">Timestamp (Newest First)</option>
-          <option value="date-asc">Timestamp (Oldest First)</option>
-        </select>
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+        <!-- Category Filter -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Filter Category:</span>
+          <select [(ngModel)]="filterCategory" (change)="applyFilterAndSort()" class="sort-select">
+            <option value="all">All Categories</option>
+            <option value="a">Auth Events</option>
+            <option value="b">Intent Events</option>
+            <option value="c">Alert Events</option>
+            <option value="none">No Categories</option>
+          </select>
+        </div>
+
+        <!-- Sort By -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Sort By:</span>
+          <select [(ngModel)]="sortBy" (change)="applyFilterAndSort()" class="sort-select">
+            <option value="id-desc">ID (Newest First)</option>
+            <option value="id-asc">ID (Oldest First)</option>
+            <option value="name-asc">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+            <option value="date-desc">Timestamp (Newest First)</option>
+            <option value="date-asc">Timestamp (Oldest First)</option>
+          </select>
+        </div>
       </div>
     </div>
 

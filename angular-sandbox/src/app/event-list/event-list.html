@@ -70,12 +70,13 @@
           <th>Categories</th>
           <th>Notes</th>
           <th>Timestamp</th>
+          <th style="width: 100px; text-align: center;">Actions</th>
         </tr>
       </thead>
       <tbody>
         <!-- Empty State -->
         <tr *ngIf="filteredEvents.length === 0">
-          <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 4rem;">
+          <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 4rem;">
             No events found matching search criteria.
           </td>
         </tr>
@@ -97,6 +98,11 @@
             {{ event.notes || 'No description' }}
           </td>
           <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ formatTimestamp(event.created_at) }}</td>
+          <td style="text-align: center;">
+            <a [routerLink]="['/details', event.id]" class="btn btn-primary glow-button" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; border-radius: 8px;">
+              View
+            </a>
+          </td>
         </tr>
       </tbody>
     </table>

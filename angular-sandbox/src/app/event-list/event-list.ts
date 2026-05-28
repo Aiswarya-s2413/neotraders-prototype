@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 interface SandboxEvent {
   id: number;
@@ -17,7 +16,7 @@ interface SandboxEvent {
 
 @Component({
   selector: 'app-event-list',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './event-list.html',
   styleUrl: './event-list.css',
 })

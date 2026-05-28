@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 
@@ -16,39 +15,31 @@ interface SandboxEvent {
 
 @Component({
   selector: 'app-event-detail',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './event-detail.html',
   styleUrl: './event-detail.css',
 })
 export class EventDetail implements OnInit {
-  event: SandboxEvent | null = null;
+  events: SandboxEvent[] = [];
   loading: boolean = true;
   errorMessage: string = '';
 
-  constructor(
-    private route: ActivatedRoute,
-    private http: HttpClient,
-    private router: Router
-  ) {}
+  constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.fetchEventDetails(id);
-    } else {
-      this.errorMessage = 'Invalid Event ID.';
-      this.loading = false;
-    }
+    this.fetchEvents();
   }
 
-  fetchEventDetails(id: string) {
+  fetchEvents() {
     this.loading = true;
-    this.http.get<any>(`/api/test-events/${id}`).subscribe({
+    this.errorMessage = '';
+    
+    this.http.get<any>('/api/test-events').subscribe({
       next: (response) => {
         if (response.status === 'success') {
-          this.event = response.data;
+          this.events = response.data || [];
         } else {
-          this.errorMessage = 'Failed to load details: ' + response.message;
+          this.errorMessage = 'Failed to load event details: ' + response.message;
         }
         this.loading = false;
       },

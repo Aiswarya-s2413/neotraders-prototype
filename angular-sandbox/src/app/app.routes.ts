@@ -7,5 +7,5 @@ export const routes: Routes = [
   { path: '', redirectTo: 'form', pathMatch: 'full' },
   { path: 'form', component: EventForm },
   { path: 'records', component: EventList },
-  { path: 'details/:id', component: EventDetail }
+  { path: 'details', component: EventDetail }
 ];

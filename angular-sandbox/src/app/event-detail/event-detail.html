@@ -1,22 +1,16 @@
 <header class="top-header animate-fade-in-down">
   <div class="header-titles">
     <h1 class="gradient-text">Details</h1>
-    <p class="subtitle">Complete metadata profile captured by the tracking snippet.</p>
-  </div>
-  <div class="header-actions">
-    <a routerLink="/records" class="btn btn-primary glow-button">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      Back to Records
-    </a>
+    <p class="subtitle">Complete metadata profiles for all events stored in the database.</p>
   </div>
 </header>
 
-<div class="sandbox-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto;">
+<div class="sandbox-grid" style="grid-template-columns: 1fr; max-width: 900px; margin: 0 auto; gap: 2rem;">
   <!-- Loading state -->
   <div *ngIf="loading" class="glass-panel form-section animate-fade-in-up" style="text-align: center; padding: 5rem 2rem;">
     <div class="spinner-container">
       <div class="spinner"></div>
-      <span class="spinner-text gradient-text">Loading event profile...</span>
+      <span class="spinner-text gradient-text">Loading event profiles...</span>
     </div>
   </div>
 
@@ -26,43 +20,52 @@
     {{ errorMessage }}
   </div>
 
-  <!-- Details card -->
-  <div *ngIf="!loading && event" class="glass-panel form-section animate-fade-in-up" style="gap: 2rem;">
-    <h3 class="form-title" style="display: flex; justify-content: space-between; align-items: center;">
-      <span>Event Profile #{{ event.id }}</span>
-      <span style="font-size: 0.85rem; color: var(--text-secondary);">Logged at {{ formatTimestamp(event.created_at) }}</span>
-    </h3>
+  <!-- Empty state -->
+  <div *ngIf="!loading && !errorMessage && events.length === 0" class="glass-panel form-section animate-fade-in-up" style="text-align: center; padding: 5rem 2rem; color: var(--text-secondary);">
+    No events captured in the database yet. Use the Form page to trigger one!
+  </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-      <div class="form-group">
-        <span class="form-label">Event Name / Key</span>
-        <div style="font-size: 1.15rem; font-weight: 700; color: white;">
-          {{ event.name }}
+  <!-- Event cards loop -->
+  <div *ngIf="!loading && !errorMessage && events.length > 0" style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%;">
+    <div *ngFor="let event of events; let index = index" class="glass-panel form-section animate-fade-in-up" [style.animation-delay]="(index * 0.05) + 's'" style="gap: 1.5rem; padding: 1.75rem 2rem;">
+      <h3 class="form-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.75rem; margin-bottom: 0;">
+        <span style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
+          Event ID <strong style="color: var(--accent-purple);">#{{ event.id }}</strong>
+        </span>
+        <span style="font-size: 0.85rem; color: var(--text-secondary);">{{ formatTimestamp(event.created_at) }}</span>
+      </h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 1.5rem;">
+        <div class="form-group">
+          <span class="form-label" style="font-size: 0.75rem; letter-spacing: 0.5px;">Event Name / Action</span>
+          <div style="font-size: 1.05rem; font-weight: 700; color: white;">
+            {{ event.name }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <span class="form-label" style="font-size: 0.75rem; letter-spacing: 0.5px;">Header User Email</span>
+          <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue);">
+            {{ event.user_email || 'N/A' }}
+          </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <span class="form-label">User Email Header</span>
-        <div style="font-size: 1.15rem; font-weight: 700; color: var(--accent-blue);">
-          {{ event.user_email || 'N/A' }}
+      <div class="form-group" style="border-top: 1px dotted var(--border-glass); padding-top: 1rem;">
+        <span class="form-label" style="font-size: 0.75rem;">Categories Configured</span>
+        <div style="display: flex; gap: 8px; margin-top: 0.25rem;">
+          <span class="category-badge badge-a" *ngIf="event.category_a">Auth</span>
+          <span class="category-badge badge-b" *ngIf="event.category_b">Intent</span>
+          <span class="category-badge badge-c" *ngIf="event.category_c">Alert</span>
+          <span class="category-badge badge-none" *ngIf="!event.category_a && !event.category_b && !event.category_c">None</span>
         </div>
       </div>
-    </div>
 
-    <div class="form-group" style="border-top: 1px solid var(--border-glass); padding-top: 1.5rem;">
-      <span class="form-label">Event Categories</span>
-      <div style="display: flex; gap: 8px; margin-top: 0.5rem;">
-        <span class="category-badge badge-a" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;" *ngIf="event.category_a">Auth</span>
-        <span class="category-badge badge-b" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;" *ngIf="event.category_b">Intent</span>
-        <span class="category-badge badge-c" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;" *ngIf="event.category_c">Alert</span>
-        <span class="category-badge badge-none" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;" *ngIf="!event.category_a && !event.category_b && !event.category_c">No categories configured</span>
-      </div>
-    </div>
-
-    <div class="form-group" style="border-top: 1px solid var(--border-glass); padding-top: 1.5rem;">
-      <span class="form-label">Description / Payload Notes</span>
-      <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-glass); border-radius: 10px; padding: 1.25rem; font-family: monospace; white-space: pre-wrap; word-break: break-all; color: rgba(255,255,255,0.9); margin-top: 0.5rem; min-height: 100px;">
-        {{ event.notes || 'No description notes included.' }}
+      <div class="form-group" style="border-top: 1px dotted var(--border-glass); padding-top: 1rem;">
+        <span class="form-label" style="font-size: 0.75rem;">Ingested Notes / Description</span>
+        <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.85rem 1rem; font-family: monospace; white-space: pre-wrap; word-break: break-all; color: rgba(255,255,255,0.85); font-size: 0.85rem; margin-top: 0.25rem;">
+          {{ event.notes || 'No description notes included.' }}
+        </div>
       </div>
     </div>
   </div>

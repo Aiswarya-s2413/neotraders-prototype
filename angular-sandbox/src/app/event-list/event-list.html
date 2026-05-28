@@ -65,7 +65,8 @@
       <thead>
         <tr>
           <th style="width: 80px;">ID</th>
-          <th>Event / Reporter</th>
+          <th>Event Name</th>
+          <th>User Email</th>
           <th>Categories</th>
           <th>Notes</th>
           <th>Timestamp</th>
@@ -74,7 +75,7 @@
       <tbody>
         <!-- Empty State -->
         <tr *ngIf="filteredEvents.length === 0">
-          <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 4rem;">
+          <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 4rem;">
             No events found matching search criteria.
           </td>
         </tr>
@@ -83,6 +84,7 @@
         <tr *ngFor="let event of filteredEvents; let index = index" class="table-row-animate" [style.animation-delay]="(0.05 + index * 0.03) + 's'">
           <td><strong style="color: var(--accent-purple)">#{{ event.id }}</strong></td>
           <td><strong>{{ event.name }}</strong></td>
+          <td style="color: var(--accent-blue); font-weight: 500;">{{ event.user_email || 'N/A' }}</td>
           <td>
             <div style="display: flex; flex-wrap: wrap; gap: 4px;">
               <span *ngIf="event.category_a" class="category-badge badge-a">Auth</span>
@@ -91,7 +93,7 @@
               <span *ngIf="!event.category_a && !event.category_b && !event.category_c" class="category-badge badge-none">None</span>
             </div>
           </td>
-          <td style="color: rgba(255,255,255,0.7); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" [title]="event.notes || ''">
+          <td style="color: rgba(255,255,255,0.7); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" [title]="event.notes || ''">
             {{ event.notes || 'No description' }}
           </td>
           <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ formatTimestamp(event.created_at) }}</td>

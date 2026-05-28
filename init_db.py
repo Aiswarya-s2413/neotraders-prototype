@@ -39,8 +39,14 @@ def init_database():
                 category_b BOOLEAN DEFAULT FALSE,
                 category_c BOOLEAN DEFAULT FALSE,
                 notes TEXT,
+                user_email VARCHAR(255),
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             );
+        """)
+
+        print("Migrating captured_events table if needed...")
+        cursor.execute("""
+            ALTER TABLE captured_events ADD COLUMN IF NOT EXISTS user_email VARCHAR(255);
         """)
 
         print("Executing scoring_engine/schema.sql (Module 2)...")

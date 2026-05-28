@@ -10,6 +10,7 @@ interface SandboxEvent {
   category_b: boolean;
   category_c: boolean;
   notes: string | null;
+  user_email: string | null;
   created_at: string;
 }
 
@@ -80,7 +81,8 @@ export class EventList implements OnInit {
       result = result.filter(e => 
         e.id.toString().includes(term) ||
         e.name.toLowerCase().includes(term) ||
-        (e.notes && e.notes.toLowerCase().includes(term))
+        (e.notes && e.notes.toLowerCase().includes(term)) ||
+        (e.user_email && e.user_email.toLowerCase().includes(term))
       );
     }
 

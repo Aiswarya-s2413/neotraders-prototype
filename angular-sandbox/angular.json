@@ -20,6 +20,9 @@
               "base": "../dashboard/public/angular",
               "browser": ""
             },
+            "optimization": {
+              "fonts": false
+            },
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [

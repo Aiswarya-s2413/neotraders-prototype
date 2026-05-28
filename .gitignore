@@ -1,0 +1,18 @@
+# Except dashboard (per user request)
+dashboard/
+
+# Environments
+venv/
+.env
+
+# Python files
+__pycache__/
+*.pyc
+
+# Node & Angular
+node_modules/
+angular-sandbox/node_modules/
+angular-sandbox/.angular/
+
+# Logs
+*.log

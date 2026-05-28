@@ -1,0 +1,87 @@
+<header class="top-header animate-fade-in-down">
+  <div class="header-titles">
+    <h1 class="gradient-text">Event Records Viewer</h1>
+    <p class="subtitle">Search, sort, filter, and inspect simulated ingestion events in real-time.</p>
+  </div>
+</header>
+
+<div class="table-container glass-panel animate-fade-in-up">
+  <div class="table-header">
+    <h3>Ingested DB Events</h3>
+  </div>
+  
+  <div class="table-wrapper" style="padding: 1.5rem 2rem;">
+    <!-- Sort and Filter Controls -->
+    <div class="table-controls">
+      <div class="search-wrapper">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" [(ngModel)]="searchTerm" (input)="applyFilterAndSort()" placeholder="Search events by Name, Notes, ID..." class="search-input" style="width: 320px;">
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Sort By:</span>
+        <select [(ngModel)]="sortBy" (change)="applyFilterAndSort()" class="sort-select">
+          <option value="id-desc">ID (Newest First)</option>
+          <option value="id-asc">ID (Oldest First)</option>
+          <option value="name-asc">Name (A-Z)</option>
+          <option value="name-desc">Name (Z-A)</option>
+          <option value="date-desc">Timestamp (Newest First)</option>
+          <option value="date-asc">Timestamp (Oldest First)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-cell" style="border: none;">
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <span class="spinner-text gradient-text">Fetching records from DB...</span>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading && errorMessage" class="loading-cell" style="border: none; color: var(--accent-red);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 10px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><br>
+      {{ errorMessage }}
+    </div>
+
+    <!-- Table Content -->
+    <table *ngIf="!loading && !errorMessage">
+      <thead>
+        <tr>
+          <th style="width: 80px;">ID</th>
+          <th>Event / Reporter</th>
+          <th>Categories</th>
+          <th>Notes</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Empty State -->
+        <tr *ngIf="filteredEvents.length === 0">
+          <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 4rem;">
+            No sandbox events found matching search criteria.
+          </td>
+        </tr>
+        
+        <!-- Rows -->
+        <tr *ngFor="let event of filteredEvents; let index = index" class="table-row-animate" [style.animation-delay]="(0.05 + index * 0.03) + 's'">
+          <td><strong style="color: var(--accent-purple)">#{{ event.id }}</strong></td>
+          <td><strong>{{ event.name }}</strong></td>
+          <td>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              <span *ngIf="event.category_a" class="category-badge badge-a">Auth</span>
+              <span *ngIf="event.category_b" class="category-badge badge-b">Intent</span>
+              <span *ngIf="event.category_c" class="category-badge badge-c">Alert</span>
+              <span *ngIf="!event.category_a && !event.category_b && !event.category_c" class="category-badge badge-none">None</span>
+            </div>
+          </td>
+          <td style="color: rgba(255,255,255,0.7); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" [title]="event.notes || ''">
+            {{ event.notes || 'No description' }}
+          </td>
+          <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ formatTimestamp(event.created_at) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

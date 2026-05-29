@@ -2,7 +2,7 @@
 
 window.Tracker = {
     email: '',
-    apiEndpoint: '/api/test-events',
+    apiEndpoint: '/api/tracker-events',
 
     // Initialize with the user's email ID
     init(email, endpoint) {

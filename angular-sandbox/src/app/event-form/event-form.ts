@@ -23,10 +23,10 @@ export class EventForm {
 
   constructor(private http: HttpClient) {}
 
-  onSubmitDirect() {
+  onSubmit() {
     if (!this.name.trim()) return;
 
-    this.statusMessage = 'Submitting directly to MPA database...';
+    this.statusMessage = 'Submitting to database...';
     this.statusType = 'info';
 
     const payload = {
@@ -40,8 +40,20 @@ export class EventForm {
     this.http.post<any>('/api/test-events', payload).subscribe({
       next: (response) => {
         if (response.status === 'success') {
-          this.statusMessage = 'Direct Event successfully captured in MPA database!';
+          this.statusMessage = 'Event successfully captured in database!';
           this.statusType = 'success';
+          
+          // Auto-track the form submission action via JS Snippet
+          if (typeof Tracker !== 'undefined') {
+            const categories = {
+              category_a: this.category_a,
+              category_b: this.category_b,
+              category_c: this.category_c
+            };
+            Tracker.track('form_submitted', `User submitted form for event: "${this.name.trim()}"`, categories)
+              .catch((err: any) => console.error('Auto-track form failed:', err));
+          }
+
           this.resetForm();
           this.clearStatusAfterDelay();
         } else {
@@ -55,36 +67,6 @@ export class EventForm {
         this.statusType = 'error';
       }
     });
-  }
-
-  onSubmitTracker() {
-    if (!this.name.trim()) return;
-
-    this.statusMessage = 'Dispatching event using Tracker snippet...';
-    this.statusType = 'info';
-
-    // Initialize the tracker with a test email ID
-    Tracker.init('test-user@neotraders.com');
-
-    // Call Tracker.track directly
-    const categories = {
-      category_a: this.category_a,
-      category_b: this.category_b,
-      category_c: this.category_c
-    };
-
-    Tracker.track(this.name.trim(), this.notes.trim() || null, categories)
-      .then((response: any) => {
-        this.statusMessage = 'Event successfully tracked via JS Snippet!';
-        this.statusType = 'success';
-        this.resetForm();
-        this.clearStatusAfterDelay();
-      })
-      .catch((err: any) => {
-        console.error(err);
-        this.statusMessage = 'Tracker submission failed. Ensure backend is running.';
-        this.statusType = 'error';
-      });
   }
 
   clearStatusAfterDelay() {

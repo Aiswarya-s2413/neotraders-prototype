@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+declare var Tracker: any;
+
 interface SandboxEvent {
   id: number;
   name: string;
@@ -123,5 +125,50 @@ export class EventList implements OnInit {
     } catch {
       return isoStr;
     }
+  }
+
+  onSortChange() {
+    this.applyFilterAndSort();
+    if (typeof Tracker !== 'undefined') {
+      Tracker.track('records_sorted', `User sorted event records by: ${this.sortBy}`, {
+        category_b: true
+      }).catch((err: any) => console.error('Auto-track sort failed:', err));
+    }
+  }
+
+  onFilterChange() {
+    this.applyFilterAndSort();
+    if (typeof Tracker !== 'undefined') {
+      const categoryNames: { [key: string]: string } = {
+        all: 'All Categories',
+        a: 'Auth Events',
+        b: 'Intent Events',
+        c: 'Alert Events',
+        none: 'No Categories'
+      };
+      const categoryLabel = categoryNames[this.filterCategory] || this.filterCategory;
+      Tracker.track('records_filtered', `User filtered event records by: ${categoryLabel}`, {
+        category_c: true
+      }).catch((err: any) => console.error('Auto-track filter failed:', err));
+    }
+  }
+
+  private searchDebounceTimer: any;
+
+  onSearchInput() {
+    this.applyFilterAndSort();
+    
+    if (this.searchDebounceTimer) {
+      clearTimeout(this.searchDebounceTimer);
+    }
+    
+    this.searchDebounceTimer = setTimeout(() => {
+      const term = this.searchTerm.trim();
+      if (term && typeof Tracker !== 'undefined') {
+        Tracker.track('records_searched', `User searched event records for: "${term}"`, {
+          category_b: true
+        }).catch((err: any) => console.error('Auto-track search failed:', err));
+      }
+    }, 1000);
   }
 }

@@ -15,14 +15,14 @@
     <div class="table-controls">
       <div class="search-wrapper">
         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" [(ngModel)]="searchTerm" (input)="applyFilterAndSort()" placeholder="Search events by Name, Notes, ID..." class="search-input" style="width: 320px;">
+        <input type="text" [(ngModel)]="searchTerm" (input)="onSearchInput()" placeholder="Search events by Name, Notes, ID..." class="search-input" style="width: 320px;">
       </div>
 
       <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
         <!-- Category Filter -->
         <div style="display: flex; align-items: center; gap: 10px;">
           <span style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Filter Category:</span>
-          <select [(ngModel)]="filterCategory" (change)="applyFilterAndSort()" class="sort-select">
+          <select [(ngModel)]="filterCategory" (change)="onFilterChange()" class="sort-select">
             <option value="all">All Categories</option>
             <option value="a">Auth Events</option>
             <option value="b">Intent Events</option>
@@ -34,7 +34,7 @@
         <!-- Sort By -->
         <div style="display: flex; align-items: center; gap: 10px;">
           <span style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Sort By:</span>
-          <select [(ngModel)]="sortBy" (change)="applyFilterAndSort()" class="sort-select">
+          <select [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
             <option value="id-desc">ID (Newest First)</option>
             <option value="id-asc">ID (Oldest First)</option>
             <option value="name-asc">Name (A-Z)</option>

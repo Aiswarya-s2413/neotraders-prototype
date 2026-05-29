@@ -23,6 +23,22 @@ export class EventForm {
 
   constructor(private http: HttpClient) {}
 
+  onCategoryToggle(categoryLabel: string, categoryKey: 'category_a' | 'category_b' | 'category_c', isChecked: boolean) {
+    if (typeof Tracker !== 'undefined') {
+      const categories = {
+        category_a: categoryKey === 'category_a' ? isChecked : false,
+        category_b: categoryKey === 'category_b' ? isChecked : false,
+        category_c: categoryKey === 'category_c' ? isChecked : false
+      };
+      const stateStr = isChecked ? 'Checked' : 'Unchecked';
+      Tracker.track(
+        'category_toggled',
+        `User toggled '${categoryLabel}' to: ${stateStr}`,
+        categories
+      ).catch((err: any) => console.error('Auto-track checkbox failed:', err));
+    }
+  }
+
   onSubmit() {
     if (!this.name.trim()) return;
 

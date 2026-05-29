@@ -19,15 +19,15 @@
         <label class="form-label">Event Categories (Checkboxes)</label>
         <div class="checkbox-container">
           <label class="checkbox-label">
-            <input type="checkbox" name="category_a" [(ngModel)]="category_a" class="checkbox-input">
+            <input type="checkbox" name="category_a" [(ngModel)]="category_a" (change)="onCategoryToggle('Category A: Authentication Event', 'category_a', category_a)" class="checkbox-input">
             <span>Category A: Authentication Event</span>
           </label>
           <label class="checkbox-label">
-            <input type="checkbox" name="category_b" [(ngModel)]="category_b" class="checkbox-input">
+            <input type="checkbox" name="category_b" [(ngModel)]="category_b" (change)="onCategoryToggle('Category B: High Intent Score Action', 'category_b', category_b)" class="checkbox-input">
             <span>Category B: High Intent Score Action</span>
           </label>
           <label class="checkbox-label">
-            <input type="checkbox" name="category_c" [(ngModel)]="category_c" class="checkbox-input">
+            <input type="checkbox" name="category_c" [(ngModel)]="category_c" (change)="onCategoryToggle('Category C: Performance Alert', 'category_c', category_c)" class="checkbox-input">
             <span>Category C: Performance Alert</span>
           </label>
         </div>

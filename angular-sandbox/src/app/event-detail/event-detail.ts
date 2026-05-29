@@ -34,7 +34,7 @@ export class EventDetail implements OnInit {
     this.loading = true;
     this.errorMessage = '';
     
-    this.http.get<any>('/api/test-events').subscribe({
+    this.http.get<any>('/api/tracker-events').subscribe({
       next: (response) => {
         if (response.status === 'success') {
           this.events = response.data || [];

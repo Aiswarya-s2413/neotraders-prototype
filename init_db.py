@@ -42,6 +42,17 @@ def init_database():
                 user_email VARCHAR(255),
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS js_tracked_events (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                category_a BOOLEAN DEFAULT FALSE,
+                category_b BOOLEAN DEFAULT FALSE,
+                category_c BOOLEAN DEFAULT FALSE,
+                notes TEXT,
+                user_email VARCHAR(255),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
         """)
 
         print("Migrating captured_events table if needed...")

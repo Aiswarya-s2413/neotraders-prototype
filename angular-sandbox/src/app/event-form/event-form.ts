@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 declare var Tracker: any;
 
@@ -20,7 +21,43 @@ export class EventForm {
   statusMessage: string = '';
   statusType: 'success' | 'error' | 'info' | '' = '';
 
-  onSubmit() {
+  constructor(private http: HttpClient) {}
+
+  onSubmitDirect() {
+    if (!this.name.trim()) return;
+
+    this.statusMessage = 'Submitting directly to MPA database...';
+    this.statusType = 'info';
+
+    const payload = {
+      name: this.name.trim(),
+      category_a: this.category_a,
+      category_b: this.category_b,
+      category_c: this.category_c,
+      notes: this.notes.trim() || null
+    };
+
+    this.http.post<any>('/api/test-events', payload).subscribe({
+      next: (response) => {
+        if (response.status === 'success') {
+          this.statusMessage = 'Direct Event successfully captured in MPA database!';
+          this.statusType = 'success';
+          this.resetForm();
+          this.clearStatusAfterDelay();
+        } else {
+          this.statusMessage = 'Error: ' + response.message;
+          this.statusType = 'error';
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.statusMessage = 'Server submission failed. Ensure backend is running.';
+        this.statusType = 'error';
+      }
+    });
+  }
+
+  onSubmitTracker() {
     if (!this.name.trim()) return;
 
     this.statusMessage = 'Dispatching event using Tracker snippet...';
@@ -38,22 +75,25 @@ export class EventForm {
 
     Tracker.track(this.name.trim(), this.notes.trim() || null, categories)
       .then((response: any) => {
-        this.statusMessage = 'Event successfully captured in database!';
+        this.statusMessage = 'Event successfully tracked via JS Snippet!';
         this.statusType = 'success';
         this.resetForm();
-        
-        setTimeout(() => {
-          if (this.statusType === 'success') {
-            this.statusMessage = '';
-            this.statusType = '';
-          }
-        }, 5000);
+        this.clearStatusAfterDelay();
       })
       .catch((err: any) => {
         console.error(err);
         this.statusMessage = 'Tracker submission failed. Ensure backend is running.';
         this.statusType = 'error';
       });
+  }
+
+  clearStatusAfterDelay() {
+    setTimeout(() => {
+      if (this.statusType === 'success') {
+        this.statusMessage = '';
+        this.statusType = '';
+      }
+    }, 5000);
   }
 
   resetForm() {

@@ -1,0 +1,13 @@
+[Unit]
+Description=NeoTraders FastAPI Service
+After=network.target
+
+[Service]
+User=mohit
+WorkingDirectory=/home/mohit/neotraders
+ExecStart=/home/mohit/neotraders/venv/bin/uvicorn dashboard.server:app --host 0.0.0.0 --port 8081
+Restart=always
+Environment=ABACUS_DB_HOST=127.0.0.1 ABACUS_DB_PORT=5435 ABACUS_DB_USER=postgres ABACUS_DB_PASS=abacus_password ABACUS_DB_NAME=abacus
+
+[Install]
+WantedBy=multi-user.target

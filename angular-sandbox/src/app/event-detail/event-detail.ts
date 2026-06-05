@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 
+declare var Tracker: any;
+
 interface SandboxEvent {
   id: number;
   name: string;
@@ -10,6 +12,7 @@ interface SandboxEvent {
   category_c: boolean;
   notes: string | null;
   user_email: string | null;
+  element_id: string | null;
   created_at: string;
 }
 
@@ -34,7 +37,16 @@ export class EventDetail implements OnInit {
     this.loading = true;
     this.errorMessage = '';
     
-    this.http.get<any>('/api/tracker-events').subscribe({
+    let apiHost = '';
+    if (typeof Tracker !== 'undefined' && Tracker.apiEndpoint) {
+      try {
+        const urlObj = new URL(Tracker.apiEndpoint);
+        apiHost = `${urlObj.protocol}//${urlObj.host}`;
+      } catch (e) {}
+    }
+    const apiUrl = apiHost ? `${apiHost}/api/tracker-events` : '/api/tracker-events';
+
+    this.http.get<any>(apiUrl).subscribe({
       next: (response) => {
         if (response.status === 'success') {
           this.events = response.data || [];

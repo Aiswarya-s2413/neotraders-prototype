@@ -53,7 +53,21 @@ export class EventForm {
       notes: this.notes.trim() || null
     };
 
-    this.http.post<any>('/api/test-events', payload).subscribe({
+    let apiHost = '';
+    if (typeof Tracker !== 'undefined' && Tracker.apiEndpoint) {
+      try {
+        const urlObj = new URL(Tracker.apiEndpoint);
+        apiHost = `${urlObj.protocol}//${urlObj.host}`;
+      } catch (e) {}
+    }
+    const apiUrl = apiHost ? `${apiHost}/api/test-events` : '/api/test-events';
+
+    const headers: { [key: string]: string } = {};
+    if (typeof Tracker !== 'undefined' && Tracker.email) {
+      headers['X-User-Email'] = Tracker.email;
+    }
+
+    this.http.post<any>(apiUrl, payload, { headers }).subscribe({
       next: (response) => {
         if (response.status === 'success') {
           this.statusMessage = 'Event successfully captured in database!';

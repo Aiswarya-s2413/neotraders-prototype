@@ -27,6 +27,7 @@ def clear_database():
             TRUNCATE TABLE power_user_baseline RESTART IDENTITY CASCADE;
             TRUNCATE TABLE user_benchmarks RESTART IDENTITY CASCADE;
             TRUNCATE TABLE captured_events RESTART IDENTITY CASCADE;
+            TRUNCATE TABLE js_tracked_events RESTART IDENTITY CASCADE;
         """)
 
         conn.commit()

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoTrader - Sales Intelligence Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 1. LEFT SIDEBAR -->
+        <aside class="sidebar glass-panel animate-fade-in-left">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <div class="logo-text-wrapper">
+                        <span class="logo-title">NeoTrader</span>
+                        <span class="logo-subtitle">Sales Intelligence Console</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-scrollable">
+                <!-- Group 1: Intelligence -->
+                <div class="sidebar-group">
+                    <span class="group-title">INTELLIGENCE</span>
+                    <nav class="nav-menu">
+                        <a href="index.html" class="nav-item active">
+                            <span class="nav-label">Sales Triggers</span>
+                            <span class="nav-badge" id="badgeSalesTriggers">0</span>
+                        </a>
+                        <a href="#" class="nav-item">
+                            <span class="nav-label">Power Users</span>
+                            <span class="nav-badge text-muted" id="badgePowerUsers">0</span>
+                        </a>
+                        <a href="#" class="nav-item">
+                            <span class="nav-label">Renewal Risk</span>
+                            <span class="nav-badge text-muted" id="badgeRenewalRisk">0</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Group 2: Cohorts / Habits -->
+                <div class="sidebar-group">
+                    <span class="group-title">COHORTS</span>
+                    <nav class="nav-menu">
+                        <a href="#" class="nav-item">
+                            <span class="nav-label-dot dot-green"></span>
+                            <span class="nav-label">Daily Ritual</span>
+                            <span class="nav-count" id="countDailyRitual">0</span>
+                        </a>
+                        <a href="#" class="nav-item">
+                            <span class="nav-label-dot dot-teal"></span>
+                            <span class="nav-label">Consistent User</span>
+                            <span class="nav-count" id="countConsistent">0</span>
+                        </a>
+                        <a href="#" class="nav-item">
+                            <span class="nav-label-dot dot-yellow"></span>
+                            <span class="nav-label">Occasional Visitor</span>
+                            <span class="nav-count" id="countOccasional">0</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span class="status-text">prod ingest healthy</span>
+                </div>
+                <div class="status-rate">3.2k ev/s</div>
+            </div>
+        </aside>
+
+        <!-- 2. MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- Top Search and Info Header -->
+            <header class="top-header animate-fade-in-down">
+                <div class="header-breadcrumb">
+                    <span class="parent-crumb">Sales Triggers</span>
+                    <span class="crumb-separator">/</span>
+                    <span class="current-crumb">Today</span>
+                </div>
+                
+                <div class="search-wrapper">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" id="searchInput" placeholder="Search user ID, triggers, habits..." class="search-input">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+
+                <div class="header-right-actions">
+                    <div class="stream-status">
+                        <span class="green-indicator-dot"></span>
+                        <span class="stream-text">Live - stream healthy</span>
+                        <span class="stream-time" id="streamTime">14:28 IST</span>
+                    </div>
+                    <button class="action-btn-circle" id="exportBtn" title="Export to CRM">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    </button>
+
+                </div>
+            </header>
+
+            <!-- 5 KPI Cards -->
+            <div class="kpi-grid">
+                <!-- Card 1: Total Leads -->
+                <div class="kpi-card glass-panel animate-fade-in-up delay-1">
+                    <span class="kpi-label">TOTAL LEADS</span>
+                    <div class="kpi-value-row">
+                        <h3 class="kpi-value" id="kpiTotalLeads">0</h3>
+                    </div>
+                    <span class="kpi-subtext">active users in database</span>
+                </div>
+
+                <!-- Card 2: High Conviction -->
+                <div class="kpi-card glass-panel animate-fade-in-up delay-2">
+                    <span class="kpi-label">HIGH CONVICTION</span>
+                    <div class="kpi-value-row">
+                        <h3 class="kpi-value" id="kpiHighConviction">0</h3>
+                    </div>
+                    <span class="kpi-subtext">conviction score &ge; 50</span>
+                </div>
+
+                <!-- Card 3: Upgrade Ready -->
+                <div class="kpi-card glass-panel animate-fade-in-up delay-3">
+                    <span class="kpi-label">UPGRADE READY</span>
+                    <div class="kpi-value-row">
+                        <h3 class="kpi-value" id="kpiUpgradeReady">0</h3>
+                    </div>
+                    <span class="kpi-subtext">evaluation score &ge; 50</span>
+                </div>
+
+                <!-- Card 4: Churn Risk -->
+                <div class="kpi-card glass-panel animate-fade-in-up delay-4">
+                    <span class="kpi-label">CHURN RISK</span>
+                    <div class="kpi-value-row">
+                        <h3 class="kpi-value" id="kpiChurnRisk">0</h3>
+                    </div>
+                    <span class="kpi-subtext">friction score &ge; 50</span>
+                </div>
+
+                <!-- Card 5: Avg Probability -->
+                <div class="kpi-card glass-panel animate-fade-in-up delay-5">
+                    <span class="kpi-label">AVG PROBABILITY</span>
+                    <div class="kpi-value-row">
+                        <h3 class="kpi-value" id="kpiAvgProbability">0%</h3>
+                    </div>
+                    <span class="kpi-subtext">avg conversion probability</span>
+                </div>
+            </div>
+
+            <!-- Leads Data Table Container -->
+            <div class="table-container glass-panel animate-fade-in-up delay-4">
+                <div class="table-header-custom">
+                    <div class="table-title-group">
+                        <h3>Today's lead queue</h3>
+                        <span class="table-subtitle">AI-prioritized lead list based on real-time platform intent.</span>
+                    </div>
+                    <!-- Filter Pills -->
+                    <div class="filter-pills" id="filterPills">
+                        <button class="pill active" data-filter="all">All</button>
+                        <button class="pill" data-filter="upgrade">Upgrade-ready</button>
+                        <button class="pill" data-filter="risk">Churn Risk</button>
+                        <button class="pill" data-filter="high-value">High Conviction</button>
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="leadsTable">
+                        <thead>
+                            <tr>
+                                <th>USER ID</th>
+                                <th>CONVERSION PROB.</th>
+                                <th>REASON TO CALL</th>
+                                <th>MISSING FEATURE</th>
+                                <th>CONVICTION</th>
+                                <th>EVALUATION</th>
+                                <th>FRICTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leadsTableBody">
+                            <!-- Dynamically Generated Rows -->
+                            <tr>
+                                <td colspan="7" class="loading-cell">
+                                    <div class="spinner-container">
+                                        <div class="spinner"></div>
+                                        <span class="spinner-text">Querying intent engines...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- 3. RIGHT PANEL: LIVE TRIGGERS -->
+        <aside class="right-panel glass-panel animate-fade-in-right">
+            <div class="right-panel-header">
+                <h3>Live triggers</h3>
+                <span class="panel-subtitle">Stream from instrumentation layer &bull; auto-refreshing</span>
+            </div>
+            
+            <!-- Event Stream List Container -->
+            <div class="event-stream" id="eventStreamContainer">
+                <!-- Dynamically populated events -->
+            </div>
+        </aside>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -43,7 +43,16 @@ export class EventList implements OnInit {
     this.loading = true;
     this.errorMessage = '';
     
-    this.http.get<any>('/api/test-events').subscribe({
+    let apiHost = '';
+    if (typeof Tracker !== 'undefined' && Tracker.apiEndpoint) {
+      try {
+        const urlObj = new URL(Tracker.apiEndpoint);
+        apiHost = `${urlObj.protocol}//${urlObj.host}`;
+      } catch (e) {}
+    }
+    const apiUrl = apiHost ? `${apiHost}/api/test-events` : '/api/test-events';
+    
+    this.http.get<any>(apiUrl).subscribe({
       next: (response) => {
         if (response.status === 'success') {
           this.events = response.data || [];

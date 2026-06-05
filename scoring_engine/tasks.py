@@ -36,6 +36,7 @@ def run_intent_scoring(days_lookback=7):
         # 1. Fetch recent events
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_lookback)
         
+        # A. Fetch from api_usage_events
         cursor.execute(
             """
             SELECT user_id, endpoint, status_code 
@@ -44,8 +45,68 @@ def run_intent_scoring(days_lookback=7):
             """,
             (cutoff_date,)
         )
-        events = cursor.fetchall()
-        logger.info(f"Fetched {len(events)} events for processing.")
+        api_events = cursor.fetchall()
+        
+        # B. Fetch from js_tracked_events
+        cursor.execute(
+            """
+            SELECT COALESCE(user_email, 'anonymous') AS user_id, category_a, category_b, category_c
+            FROM js_tracked_events 
+            WHERE created_at >= %s
+            """,
+            (cutoff_date,)
+        )
+        tracker_rows = cursor.fetchall()
+        
+        # C. Fetch from captured_events
+        cursor.execute(
+            """
+            SELECT COALESCE(user_email, 'anonymous') AS user_id, category_a, category_b, category_c
+            FROM captured_events 
+            WHERE created_at >= %s
+            """,
+            (cutoff_date,)
+        )
+        prototype_rows = cursor.fetchall()
+        
+        # Combine all events into the standard format expected by aggregate_all_user_scores
+        events = []
+        for ev in api_events:
+            events.append(dict(ev))
+            
+        for row in tracker_rows:
+            endpoint = "/dashboard"
+            status_code = 200
+            if row["category_a"]:
+                endpoint = "/subscription"
+            elif row["category_b"]:
+                endpoint = "/trades"
+            elif row["category_c"]:
+                endpoint = "/utils"
+                status_code = 500
+            events.append({
+                "user_id": row["user_id"],
+                "endpoint": endpoint,
+                "status_code": status_code
+            })
+            
+        for row in prototype_rows:
+            endpoint = "/dashboard"
+            status_code = 200
+            if row["category_a"]:
+                endpoint = "/subscription"
+            elif row["category_b"]:
+                endpoint = "/trades"
+            elif row["category_c"]:
+                endpoint = "/utils"
+                status_code = 500
+            events.append({
+                "user_id": row["user_id"],
+                "endpoint": endpoint,
+                "status_code": status_code
+            })
+            
+        logger.info(f"Fetched {len(events)} events (combined API, tracker, and prototype) for processing.")
         
         # 2. Calculate scores
         scores_by_user = aggregate_all_user_scores(events)

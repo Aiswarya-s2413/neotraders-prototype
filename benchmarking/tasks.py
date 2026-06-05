@@ -71,13 +71,63 @@ def run_user_benchmarking():
             
         # 2. Fetch recent events for active users (past 14 days for habit analysis)
         cutoff = datetime.now(timezone.utc) - timedelta(days=14)
+        
+        # A. Fetch from api_usage_events
         cursor.execute("""
             SELECT user_id, endpoint, timestamp 
             FROM api_usage_events 
             WHERE timestamp >= %s
         """, (cutoff,))
+        api_events = cursor.fetchall()
         
-        all_events = cursor.fetchall()
+        # B. Fetch from js_tracked_events
+        cursor.execute("""
+            SELECT COALESCE(user_email, 'anonymous') AS user_id, category_a, category_b, category_c, created_at AS timestamp
+            FROM js_tracked_events 
+            WHERE created_at >= %s
+        """, (cutoff,))
+        tracker_rows = cursor.fetchall()
+        
+        # C. Fetch from captured_events
+        cursor.execute("""
+            SELECT COALESCE(user_email, 'anonymous') AS user_id, category_a, category_b, category_c, created_at AS timestamp
+            FROM captured_events 
+            WHERE created_at >= %s
+        """, (cutoff,))
+        prototype_rows = cursor.fetchall()
+        
+        # Combine all events into standard format expected by group by logic
+        all_events = []
+        for ev in api_events:
+            all_events.append(dict(ev))
+            
+        for row in tracker_rows:
+            endpoint = "/dashboard"
+            if row["category_a"]:
+                endpoint = "/subscription"
+            elif row["category_b"]:
+                endpoint = "/trades"
+            elif row["category_c"]:
+                endpoint = "/utils"
+            all_events.append({
+                "user_id": row["user_id"],
+                "endpoint": endpoint,
+                "timestamp": row["timestamp"]
+            })
+            
+        for row in prototype_rows:
+            endpoint = "/dashboard"
+            if row["category_a"]:
+                endpoint = "/subscription"
+            elif row["category_b"]:
+                endpoint = "/trades"
+            elif row["category_c"]:
+                endpoint = "/utils"
+            all_events.append({
+                "user_id": row["user_id"],
+                "endpoint": endpoint,
+                "timestamp": row["timestamp"]
+            })
         
         # Group by user
         user_events_map = {}

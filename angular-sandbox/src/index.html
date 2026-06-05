@@ -16,18 +16,20 @@
   <script>
     (function() {
       var script = document.createElement('script');
-      var port = window.location.port;
-      if (port === '4200' || !port) {
-        // If we are on Angular dev server (4200), try port 8080 first
-        script.src = window.location.protocol + '//' + window.location.hostname + ':8080/tracker.js';
-        script.onerror = function() {
-          // Fallback to port 8081 if 8080 fails
-          var fallbackScript = document.createElement('script');
-          fallbackScript.src = window.location.protocol + '//' + window.location.hostname + ':8081/tracker.js';
-          document.body.appendChild(fallbackScript);
-        };
+      var hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        var port = window.location.port;
+        if (port === '4200') {
+          script.src = 'http://localhost:8080/tracker.js';
+          script.onerror = function() {
+            var fallbackScript = document.createElement('script');
+            fallbackScript.src = 'http://localhost:8081/tracker.js';
+            document.body.appendChild(fallbackScript);
+          };
+        } else {
+          script.src = '/tracker.js';
+        }
       } else {
-        // If served by backend, load relatively
         script.src = '/tracker.js';
       }
       document.body.appendChild(script);

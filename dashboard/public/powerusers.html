@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoTrader - Power Users Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 1. LEFT SIDEBAR -->
+        <aside class="sidebar glass-panel animate-fade-in-left">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <div class="logo-text-wrapper">
+                        <span class="logo-title">NeoTrader</span>
+                        <span class="logo-subtitle">Sales Intelligence Console</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-scrollable">
+                <!-- Group 1: Intelligence -->
+                <div class="sidebar-group">
+                    <span class="group-title">INTELLIGENCE</span>
+                    <nav class="nav-menu">
+                        <a href="index.html" class="nav-item">
+                            <span class="nav-label">Sales Triggers</span>
+                            <span class="nav-badge" id="badgeSalesTriggers">0</span>
+                        </a>
+                        <a href="powerusers.html" class="nav-item active">
+                            <span class="nav-label">Power Users</span>
+                            <span class="nav-badge text-muted" id="badgePowerUsers">0</span>
+                        </a>
+                        <a href="#" class="nav-item">
+                            <span class="nav-label">Renewal Risk</span>
+                            <span class="nav-badge text-muted" id="badgeRenewalRisk">0</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Group 2: Cohorts / Habits -->
+                <div class="sidebar-group">
+                    <span class="group-title">COHORTS</span>
+                    <nav class="nav-menu">
+                        <a href="#" class="nav-item">
+                            <span class="nav-label-dot dot-green"></span>
+                            <span class="nav-label">Daily Ritual</span>
+                            <span class="nav-count" id="countDailyRitual">0</span>
+                        </a>
+                        <a href="#" class="nav-item">
+                            <span class="nav-label-dot dot-teal"></span>
+                            <span class="nav-label">Consistent User</span>
+                            <span class="nav-count" id="countConsistent">0</span>
+                        </a>
+                        <a href="#" class="nav-item">
+                            <span class="nav-label-dot dot-yellow"></span>
+                            <span class="nav-label">Occasional Visitor</span>
+                            <span class="nav-count" id="countOccasional">0</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Group 3: Client App Prototype (Loom) -->
+                <div class="sidebar-group">
+                    <span class="group-title">CLIENT PROTOTYPE (LOOM)</span>
+                    <nav class="nav-menu">
+                        <a href="/angular/#/portal" class="nav-item" target="_blank" style="display: flex; align-items: center; gap: 8px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.7;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            <span class="nav-label">Launch Client Portal</span>
+                        </a>
+                        <a href="/angular/#/details" class="nav-item" target="_blank" style="display: flex; align-items: center; gap: 8px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.7;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            <span class="nav-label">Launch Telemetry Logs</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span class="status-text">prod ingest healthy</span>
+                </div>
+                <div class="status-rate">3.2k ev/s</div>
+            </div>
+        </aside>
+
+        <!-- 2. MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- Top Search and Info Header -->
+            <header class="top-header animate-fade-in-down">
+                <div class="header-breadcrumb">
+                    <span class="parent-crumb">Intelligence</span>
+                    <span class="crumb-separator">/</span>
+                    <span class="current-crumb">Power Users</span>
+                </div>
+                
+                <div class="search-wrapper">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" id="searchInput" placeholder="Search user ID, habits, triggers..." class="search-input">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+
+                <div class="header-right-actions">
+                    <div class="stream-status">
+                        <span class="green-indicator-dot"></span>
+                        <span class="stream-text">Live - stream healthy</span>
+                        <span class="stream-time" id="streamTime">14:28 IST</span>
+                    </div>
+                    <button class="action-btn-circle" id="exportBtn" title="Export to CRM">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- 5 KPI Cards for Power Users -->
+            <div class="kpi-grid">
+                <!-- Card 1: Total Power Users -->
+                <div class="kpi-card glass-panel animate-fade-in-up delay-1">
+                    <span class="kpi-label">TOTAL POWER USERS</span>
+                    <div class="kpi-value-row">
+                        <h3 class="kpi-value" id="kpiTotalPowerUsers">0</h3>
+                    </div>
+                    <span class="kpi-subtext">conviction score &ge; 50</span>
+                </div>
+
+                <!-- Card 2: Avg Conviction Score -->
+                <div class="kpi-card glass-panel animate-fade-in-up delay-2">
+                    <span class="kpi-label">AVG CONVICTION</span>
+                    <div class="kpi-value-row">
+                        <h3 class="kpi-value" id="kpiAvgConviction">0</h3>
+                    </div>
+                    <span class="kpi-subtext">mean conviction level</span>
+                </div>
+
+                <!-- Card 3: Avg Value Gap -->
+                <div class="kpi-card glass-panel animate-fade-in-up delay-3">
+                    <span class="kpi-label">AVG VALUE GAP</span>
+                    <div class="kpi-value-row">
+                        <h3 class="kpi-value" id="kpiAvgValueGap">0%</h3>
+                    </div>
+                    <span class="kpi-subtext">average value deficit</span>
+                </div>
+
+                <!-- Card 4: Top Missing Feature -->
+                <div class="kpi-card glass-panel animate-fade-in-up delay-4">
+                    <span class="kpi-label">TOP GAP FEATURE</span>
+                    <div class="kpi-value-row">
+                        <h3 class="kpi-value" id="kpiTopMissingFeature" style="font-size: 1.15rem; line-height: 1.5rem; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 100%;">N/A</h3>
+                    </div>
+                    <span class="kpi-subtext">most requested feature</span>
+                </div>
+
+                <!-- Card 5: Avg Probability -->
+                <div class="kpi-card glass-panel animate-fade-in-up delay-5">
+                    <span class="kpi-label">AVG PROBABILITY</span>
+                    <div class="kpi-value-row">
+                        <h3 class="kpi-value" id="kpiAvgProbability">0%</h3>
+                    </div>
+                    <span class="kpi-subtext">avg conversion probability</span>
+                </div>
+            </div>
+
+            <!-- Date Filter Bar -->
+            <div class="date-filter-bar glass-panel animate-fade-in-up delay-4" id="dateFilterBar">
+                <div class="date-filter-label">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Filter by Date</span>
+                </div>
+                <div class="date-filter-presets" id="datePresets">
+                    <button class="date-preset-btn active" data-preset="all">All Time</button>
+                    <button class="date-preset-btn" data-preset="today">Today</button>
+                    <button class="date-preset-btn" data-preset="7d">Last 7 Days</button>
+                    <button class="date-preset-btn" data-preset="30d">Last 30 Days</button>
+                </div>
+                <div class="date-filter-divider"></div>
+                <div class="date-filter-custom">
+                    <label class="date-filter-input-label">From</label>
+                    <input type="date" id="dateFrom" class="date-filter-input">
+                    <label class="date-filter-input-label">To</label>
+                    <input type="date" id="dateTo" class="date-filter-input">
+                    <button class="date-apply-btn" id="dateApplyBtn">Apply</button>
+                    <button class="date-clear-btn" id="dateClearBtn">Clear</button>
+                </div>
+                <div class="date-filter-result" id="dateFilterResult"></div>
+            </div>
+
+            <!-- Power Users Data Table Container -->
+            <div class="table-container glass-panel animate-fade-in-up delay-5">
+                <div class="table-header-custom">
+                    <div class="table-title-group">
+                        <h3>Power Users Details</h3>
+                        <span class="table-subtitle">High conviction users with value gap analysis and feature deficits.</span>
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="powerUsersTable">
+                        <thead>
+                            <tr>
+                                <th>USER ID</th>
+                                <th>CONVERSION PROB.</th>
+                                <th>REASON TO CALL</th>
+                                <th>MISSING FEATURE</th>
+                                <th>VALUE GAP</th>
+                                <th>CONVICTION</th>
+                                <th>EVALUATION</th>
+                                <th>FRICTION</th>
+                                <th>LAST ANALYZED</th>
+                            </tr>
+                        </thead>
+                        <tbody id="powerUsersTableBody">
+                            <!-- Dynamically Generated Rows -->
+                            <tr>
+                                <td colspan="9" class="loading-cell">
+                                    <div class="spinner-container">
+                                        <div class="spinner"></div>
+                                        <span class="spinner-text">Querying power user database...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- 3. RIGHT PANEL: LIVE TRIGGERS -->
+        <aside class="right-panel glass-panel animate-fade-in-right">
+            <div class="right-panel-header">
+                <h3>Live triggers</h3>
+                <span class="panel-subtitle">Stream from instrumentation layer &bull; auto-refreshing</span>
+            </div>
+            
+            <!-- Event Stream List Container -->
+            <div class="event-stream" id="eventStreamContainer">
+                <!-- Dynamically populated events -->
+            </div>
+        </aside>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

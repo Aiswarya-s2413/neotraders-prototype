@@ -528,6 +528,140 @@ h1, h2, h3, h4, h5, h6, .kpi-value, .pill, .logo-title {
     font-weight: 500;
 }
 
+/* ===== Date Filter Bar ===== */
+.date-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.date-filter-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.date-filter-presets {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.date-preset-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: 20px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+    font-family: inherit;
+}
+.date-preset-btn:hover {
+    background: rgba(99,102,241,0.15);
+    border-color: rgba(99,102,241,0.5);
+    color: #a5b4fc;
+}
+.date-preset-btn.active {
+    background: rgba(99,102,241,0.22);
+    border-color: #6366f1;
+    color: #c7d2fe;
+}
+
+.date-filter-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-color);
+    flex-shrink: 0;
+}
+
+.date-filter-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.date-filter-input-label {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.date-filter-input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 8px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.78rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.18s;
+    color-scheme: dark;
+}
+.date-filter-input:focus {
+    border-color: #6366f1;
+}
+
+.date-apply-btn {
+    background: #6366f1;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.18s;
+}
+.date-apply-btn:hover { background: #4f46e5; }
+
+.date-clear-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: 8px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+.date-clear-btn:hover {
+    border-color: rgba(239,68,68,0.5);
+    color: #f87171;
+}
+
+.date-filter-result {
+    display: none;
+    align-items: center;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.35);
+    color: #c7d2fe;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
 /* Table Container & Filter Pills */
 .table-container {
     display: flex;
@@ -596,6 +730,7 @@ h1, h2, h3, h4, h5, h6, .kpi-value, .pill, .logo-title {
 /* Lead Table Grid */
 .table-wrapper {
     overflow-y: auto;
+    overflow-x: auto;
     flex: 1;
 }
 

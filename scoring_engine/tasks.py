@@ -74,36 +74,26 @@ def run_intent_scoring(days_lookback=7):
         for ev in api_events:
             events.append(dict(ev))
             
+        # Tracker events (from tracker.js auto-tracking and manual Tracker.track() calls)
+        # Pass category flags directly so the calculator can score all 3 Loom signal types:
+        #   category_a = page view, category_b = active interaction, category_c = deep toggle
         for row in tracker_rows:
-            endpoint = "/dashboard"
-            status_code = 200
-            if row["category_a"]:
-                endpoint = "/subscription"
-            elif row["category_b"]:
-                endpoint = "/trades"
-            elif row["category_c"]:
-                endpoint = "/utils"
-                status_code = 500
             events.append({
                 "user_id": row["user_id"],
-                "endpoint": endpoint,
-                "status_code": status_code
+                "source": "tracker",
+                "category_a": bool(row["category_a"]),
+                "category_b": bool(row["category_b"]),
+                "category_c": bool(row["category_c"]),
             })
             
+        # Prototype events (from captured_events table via Angular sandbox)
         for row in prototype_rows:
-            endpoint = "/dashboard"
-            status_code = 200
-            if row["category_a"]:
-                endpoint = "/subscription"
-            elif row["category_b"]:
-                endpoint = "/trades"
-            elif row["category_c"]:
-                endpoint = "/utils"
-                status_code = 500
             events.append({
                 "user_id": row["user_id"],
-                "endpoint": endpoint,
-                "status_code": status_code
+                "source": "prototype",
+                "category_a": bool(row["category_a"]),
+                "category_b": bool(row["category_b"]),
+                "category_c": bool(row["category_c"]),
             })
             
         logger.info(f"Fetched {len(events)} events (combined API, tracker, and prototype) for processing.")

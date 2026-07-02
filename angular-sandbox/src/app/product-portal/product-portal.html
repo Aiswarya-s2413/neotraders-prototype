@@ -1,0 +1,545 @@
+<header class="top-header animate-fade-in-down">
+  <div class="header-titles">
+    <h1 class="gradient-text">Product Portal</h1>
+    <p class="subtitle">Mock trading interface to simulate and test telemetry signals for power users.</p>
+  </div>
+</header>
+
+<div class="portal-container animate-fade-in-up">
+  <!-- Tab Sub-Navigation -->
+  <div class="portal-nav glass-panel">
+    <button (click)="selectTab('dashboard')" [ngClass]="{'active-tab': activeTab === 'dashboard'}" class="portal-nav-btn">
+      Dashboard
+    </button>
+    <button (click)="selectTab('ticker')" [ngClass]="{'active-tab': activeTab === 'ticker'}" class="portal-nav-btn">
+      Running Ticker
+    </button>
+    <button (click)="selectTab('trades')" [ngClass]="{'active-tab': activeTab === 'trades'}" class="portal-nav-btn">
+      Trades
+    </button>
+    <button (click)="selectTab('pivots')" [ngClass]="{'active-tab': activeTab === 'pivots'}" class="portal-nav-btn">
+      Pivots
+    </button>
+    <button (click)="selectTab('cpi')" [ngClass]="{'active-tab': activeTab === 'cpi'}" class="portal-nav-btn">
+      CPI
+    </button>
+    <button (click)="selectTab('candlestick')" [ngClass]="{'active-tab': activeTab === 'candlestick'}" class="portal-nav-btn">
+      Candlestick
+    </button>
+  </div>
+
+  <!-- Tab Contents -->
+  <div class="portal-content-area">
+    
+    <!-- 1. DASHBOARD TAB -->
+    <div *ngIf="activeTab === 'dashboard'" class="tab-panel animate-fade-in">
+      <div class="portal-grid">
+        <!-- Stat Cards -->
+        <div class="glass-panel stat-card">
+          <span class="stat-label">Total Portfolio</span>
+          <div class="stat-value">$1,248,300.50</div>
+          <span class="stat-meta text-green">▲ +12.4% this month</span>
+        </div>
+        <div class="glass-panel stat-card">
+          <span class="stat-label">Active Watchlists</span>
+          <div class="stat-value">3</div>
+          <span class="stat-meta">4 symbols tracked</span>
+        </div>
+        <div class="glass-panel stat-card">
+          <span class="stat-label">Telemetry Status</span>
+          <div class="stat-value text-purple">ACTIVE</div>
+          <span class="stat-meta text-purple">Tracking page-level actions</span>
+        </div>
+      </div>
+
+      <div class="glass-panel main-panel" style="margin-top: 1.5rem;">
+        <div class="panel-header-row">
+          <h3 class="panel-title">Portfolio Performance Chart</h3>
+          
+          <div class="controls-row">
+            <!-- Account Switcher -->
+            <div class="form-group-row">
+              <label class="form-label-row">Account:</label>
+              <select (change)="changeAccount($event)" [value]="selectedAccount" class="portal-select" id="select-account-portfolio">
+                <option value="Primary">Primary Account</option>
+                <option value="Margin">Margin Account</option>
+                <option value="Retirement">Retirement IRA</option>
+              </select>
+            </div>
+
+            <!-- Timeframe Pills -->
+            <div class="pills-container">
+              <button *ngFor="let tf of ['1D', '1W', '1M', '1Y']" 
+                      (click)="setTimeframe(tf)" 
+                      [ngClass]="{'active-pill': timeframe === tf}" 
+                      class="portal-pill"
+                      id="btn-timeframe-{{tf}}">
+                {{tf}}
+              </button>
+            </div>
+            
+            <!-- Gridlines Toggle -->
+            <button (click)="toggleGridlines()" 
+                    [ngClass]="{'btn-active': gridlines}" 
+                    class="portal-btn-secondary"
+                    id="btn-toggle-gridlines">
+              Gridlines: {{ gridlines ? 'ON' : 'OFF' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Simulated Chart Area -->
+        <div class="chart-simulation-box">
+          <div class="chart-backdrop" [ngClass]="{'with-grid': gridlines}">
+            <!-- Simulated candlesticks or lines based on selected timeframe -->
+            <div class="simulated-lines" [attr.data-timeframe]="timeframe">
+              <div class="chart-trend-indicator" [ngStyle]="{'color': timeframe === '1D' ? '#ff7675' : '#55efc4'}">
+                Simulated {{ timeframe }} Trend Graph (Account: {{ selectedAccount }})
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. RUNNING TICKER TAB -->
+    <div *ngIf="activeTab === 'ticker'" class="tab-panel animate-fade-in">
+      <div class="glass-panel main-panel">
+        <div class="panel-header-row">
+          <h3 class="panel-title">Real-Time Market Ticker Analysis</h3>
+          
+          <!-- Search Control -->
+          <form (ngSubmit)="searchTicker()" class="portal-search-form">
+            <input type="text" [(ngModel)]="searchSymbol" name="search" placeholder="Search Ticker (e.g. MSFT, TSLA)..." class="portal-search-input" id="input-ticker-search">
+            <button type="submit" class="portal-search-btn" id="btn-ticker-search">Search</button>
+          </form>
+        </div>
+
+        <div class="ticker-dashboard-layout">
+          <!-- Active Ticker Info Panel -->
+          <div class="ticker-left-panel">
+            <div class="ticker-spotlight-card">
+              <div class="spotlight-sym">{{ activeTicker }}</div>
+              <div class="spotlight-price">${{ tickerData[activeTicker]?.price }}</div>
+              <div class="spotlight-row">
+                <span class="spotlight-change" [ngClass]="tickerData[activeTicker]?.change.startsWith('+') ? 'text-green' : 'text-red'">
+                  {{ tickerData[activeTicker]?.change }}
+                </span>
+                <span class="spotlight-vol">Vol: {{ tickerData[activeTicker]?.volume }}</span>
+              </div>
+            </div>
+
+            <!-- Ticker Chart Control Sidebar -->
+            <div class="ticker-sidebar-card" style="margin-top: 1rem;">
+              <h4 class="card-subtitle">Chart Settings</h4>
+              
+              <!-- Style Selector -->
+              <div class="settings-group">
+                <span class="settings-label">Style:</span>
+                <div class="pills-container w-full">
+                  <button (click)="setChartStyle('Candlestick')" [ngClass]="{'active-pill': chartStyle === 'Candlestick'}" class="portal-pill flex-1" id="toggle-chart-style">Candlestick</button>
+                  <button (click)="setChartStyle('Line')" [ngClass]="{'active-pill': chartStyle === 'Line'}" class="portal-pill flex-1" id="toggle-chart-style-line">Line</button>
+                </div>
+              </div>
+
+              <!-- Resolution Dropdown -->
+              <div class="settings-group" style="margin-top: 0.75rem;">
+                <span class="settings-label">Interval:</span>
+                <select (change)="setResolution($any($event).target.value)" [value]="resolution" class="portal-select w-full" id="select-ticker-resolution">
+                  <option value="1m">1 minute</option>
+                  <option value="5m">5 minutes</option>
+                  <option value="15m">15 minutes</option>
+                  <option value="1h">1 hour</option>
+                </select>
+              </div>
+
+              <!-- Multisignal Toggle -->
+              <div class="settings-group" style="margin-top: 0.75rem;">
+                <span class="settings-label">Multisignal Mode:</span>
+                <button (click)="toggleMultisignal()" 
+                        [ngClass]="{'btn-active': multisignalActive}" 
+                        class="portal-btn-secondary w-full"
+                        id="btn-multisignal">
+                  Multisignal: {{ multisignalActive ? 'ON' : 'OFF' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Technical Indicators & Chart Panel -->
+          <div class="ticker-right-panel">
+            <div class="ticker-chart-box">
+              <!-- Technical Indicators Toggles -->
+              <div class="indicators-header">
+                <span class="indicators-title">Overlays:</span>
+                <div class="checkbox-row">
+                  <label class="indicator-chk-label">
+                    <input type="checkbox" [checked]="indicators.rsi" (change)="toggleIndicator('rsi')" class="indicator-chk" id="chk-indicator-rsi">
+                    <span>RSI</span>
+                  </label>
+                  <label class="indicator-chk-label">
+                    <input type="checkbox" [checked]="indicators.macd" (change)="toggleIndicator('macd')" class="indicator-chk" id="chk-indicator-macd">
+                    <span>MACD</span>
+                  </label>
+                  <label class="indicator-chk-label">
+                    <input type="checkbox" [checked]="indicators.bands" (change)="toggleIndicator('bands')" class="indicator-chk" id="chk-indicator-bands">
+                    <span>Bollinger Bands</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Simulator Box -->
+              <div class="chart-backdrop" style="height: 230px;">
+                <div class="simulated-indicators">
+                  <div class="indicator-tag text-purple" *ngIf="indicators.rsi">▲ RSI Overlay Enabled</div>
+                  <div class="indicator-tag text-blue" *ngIf="indicators.macd">▲ MACD Histogram Enabled</div>
+                  <div class="indicator-tag text-green" *ngIf="indicators.bands">▲ Bollinger Bands Bands Enabled</div>
+                  <div class="indicator-tag text-yellow" *ngIf="multisignalActive">▲ Multisignal Grid Analysis Enabled</div>
+                </div>
+                <div class="chart-display-style">
+                  Simulating {{ activeTicker }} Chart Type: {{ chartStyle }} (Resolution: {{ resolution }})
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. TRADES TAB -->
+    <div *ngIf="activeTab === 'trades'" class="tab-panel animate-fade-in">
+      <div class="trades-layout-grid">
+        
+        <!-- Left: Watchlists -->
+        <div class="glass-panel flex-column-panel">
+          <div class="panel-header-row" style="border-bottom: 1px solid var(--border-glass); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+            <h4 class="panel-title">My Watchlists</h4>
+          </div>
+
+          <!-- Add to watchlist -->
+          <div class="form-group" style="flex-direction: row; gap: 0.5rem; margin-bottom: 1rem;">
+            <input type="text" [(ngModel)]="newWatchlistSymbol" placeholder="Symbol (e.g. COIN)..." class="portal-input-inline" style="flex: 1;" id="input-watchlist-add-text">
+            <button (click)="addToWatchlist()" class="portal-btn-primary" id="btn-watchlist-add">Add</button>
+          </div>
+
+          <div class="watchlist-symbols-list">
+            <div *ngFor="let sym of watchlist" class="watchlist-symbol-item">
+              <span class="watchlist-sym-name">{{ sym }}</span>
+              <span class="watchlist-sym-price">${{ tickerData[sym]?.price || '150.00' }}</span>
+              <span class="watchlist-sym-change" [ngClass]="(tickerData[sym]?.change || '+0.0%').startsWith('+') ? 'text-green' : 'text-red'">
+                {{ tickerData[sym]?.change || '+0.0%' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Trading Ticket -->
+        <div class="glass-panel flex-column-panel">
+          <div class="panel-header-row" style="border-bottom: 1px solid var(--border-glass); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+            <h4 class="panel-title">Order Entry Ticket</h4>
+            
+            <!-- Long/Short switch -->
+            <div class="pills-container">
+              <button (click)="togglePositionType('Long')" [ngClass]="{'active-pill-buy': positionType === 'Long'}" class="portal-pill" id="toggle-trade-position">Long (Buy)</button>
+              <button (click)="togglePositionType('Short')" [ngClass]="{'active-pill-sell': positionType === 'Short'}" class="portal-pill" id="toggle-trade-position-short">Short (Sell)</button>
+            </div>
+          </div>
+
+          <form (ngSubmit)="submitOrder()" class="trade-order-form">
+            <!-- Symbol -->
+            <div class="form-group">
+              <label class="form-label">Symbol</label>
+              <input type="text" [(ngModel)]="tradeSymbol" name="tradeSymbol" required class="input-text" placeholder="e.g. AAPL" id="input-trade-symbol">
+            </div>
+
+            <!-- Qty and Order Type -->
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Quantity</label>
+                <input type="number" [(ngModel)]="tradeQty" name="tradeQty" required min="1" class="input-text" id="input-trade-qty">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Order Type</label>
+                <select [(ngModel)]="tradePriceType" name="tradePriceType" class="portal-select" id="select-order-price-type">
+                  <option value="Limit">Limit</option>
+                  <option value="Market">Market</option>
+                  <option value="Stop">Stop Loss</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Status message -->
+            <div *ngIf="tradeMessage" class="status-message status-success" style="margin-top: 1rem;">
+              {{ tradeMessage }}
+            </div>
+
+            <!-- Submit buttons -->
+            <div class="trade-buttons-row" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+              <button type="submit" class="btn btn-primary glow-button btn-full flex-1" id="btn-submit-order" style="background: var(--brand-gradient);">
+                Place Order
+              </button>
+              <button type="button" (click)="openPositionDetails()" class="portal-btn-secondary" id="btn-position-details">
+                Positions Summary
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 4. PIVOTS TAB -->
+    <div *ngIf="activeTab === 'pivots'" class="tab-panel animate-fade-in">
+      <div class="glass-panel main-panel">
+        <div class="panel-header-row" style="border-bottom: 1px solid var(--border-glass); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+          <h3 class="panel-title">Technical Support & Pivot Levels</h3>
+          
+          <div class="controls-row">
+            <!-- Pivot Type calculation switcher -->
+            <div class="form-group-row">
+              <label class="form-label-row">Method:</label>
+              <select (change)="changePivotCalc($any($event).target.value)" [value]="pivotCalculationType" class="portal-select" id="toggle-pivot-calc">
+                <option value="Standard">Standard Classic</option>
+                <option value="Camarilla">Camarilla</option>
+                <option value="Fibonacci">Fibonacci</option>
+              </select>
+            </div>
+            
+            <button (click)="exportPivots()" class="portal-btn-primary" id="btn-export-pivots-sheet">
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <p class="panel-desc-paragraph">
+          Computed dynamic price boundaries for active index setups. These levels guide short-term breakouts and reversal thresholds.
+        </p>
+
+        <!-- Pivot point grids -->
+        <div class="pivots-accordion-layout" style="margin-top: 1.5rem;">
+          <!-- Accordion 1: Camarilla Levels -->
+          <div class="accordion-item glass-panel">
+            <button (click)="toggleAccordion('Camarilla')" class="accordion-header" id="panel-expand-camarilla">
+              <span class="accordion-title">Camarilla Pivots (Day Trading Levels)</span>
+              <span class="accordion-icon">{{ expandedSection === 'Camarilla' ? '▼' : '▶' }}</span>
+            </button>
+            <div class="accordion-body" *ngIf="expandedSection === 'Camarilla'">
+              <table class="pivots-data-table">
+                <thead>
+                  <tr><th>Level</th><th>Value</th><th>Indication</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="text-green">Resistance 4 (H4)</td><td>178.50</td><td>Breakout Threshold Buy</td></tr>
+                  <tr><td class="text-green">Resistance 3 (H3)</td><td>176.90</td><td>Reversal Target Sell</td></tr>
+                  <tr><td class="text-red">Support 3 (L3)</td><td>173.80</td><td>Reversal Target Buy</td></tr>
+                  <tr><td class="text-red">Support 4 (L4)</td><td>172.20</td><td>Breakout Threshold Short</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Accordion 2: Classic Levels -->
+          <div class="accordion-item glass-panel" style="margin-top: 0.75rem;">
+            <button (click)="toggleAccordion('Classic')" class="accordion-header" id="panel-expand-classic">
+              <span class="accordion-title">Classic Pivots (Standard R1-S1 Calculations)</span>
+              <span class="accordion-icon">{{ expandedSection === 'Classic' ? '▼' : '▶' }}</span>
+            </button>
+            <div class="accordion-body" *ngIf="expandedSection === 'Classic'">
+              <table class="pivots-data-table">
+                <thead>
+                  <tr><th>Level</th><th>Value</th><th>Indication</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="text-green">R2 Level</td><td>181.20</td><td>Major Resistance</td></tr>
+                  <tr><td class="text-green">R1 Level</td><td>177.80</td><td>Minor Resistance</td></tr>
+                  <tr><td class="text-purple">Pivot Point (PP)</td><td>174.90</td><td>Neutral Bias Value</td></tr>
+                  <tr><td class="text-red">S1 Level</td><td>171.50</td><td>Minor Support</td></tr>
+                  <tr><td class="text-red">S2 Level</td><td>168.60</td><td>Major Support</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Accordion 3: Fibonacci Levels -->
+          <div class="accordion-item glass-panel" style="margin-top: 0.75rem;">
+            <button (click)="toggleAccordion('Fibonacci')" class="accordion-header" id="panel-expand-fibonacci">
+              <span class="accordion-title">Fibonacci Retracement Pivots</span>
+              <span class="accordion-icon">{{ expandedSection === 'Fibonacci' ? '▼' : '▶' }}</span>
+            </button>
+            <div class="accordion-body" *ngIf="expandedSection === 'Fibonacci'">
+              <table class="pivots-data-table">
+                <thead>
+                  <tr><th>Retracement</th><th>Value</th><th>Confidence Level</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>38.2% Level</td><td>176.10</td><td>Moderate Resistance</td></tr>
+                  <tr><td>50.0% Level</td><td>174.90</td><td>Strong Retracement Anchor</td></tr>
+                  <tr><td>61.8% Level</td><td>173.70</td><td>High Confident Support Level</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 5. CPI TAB -->
+    <div *ngIf="activeTab === 'cpi'" class="tab-panel animate-fade-in">
+      <div class="glass-panel main-panel">
+        <div class="panel-header-row" style="border-bottom: 1px solid var(--border-glass); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+          <h3 class="panel-title">CPI Macroeconomic Levels</h3>
+          
+          <div class="controls-row">
+            <!-- Region Selector -->
+            <div class="form-group-row">
+              <label class="form-label-row">Region:</label>
+              <select (change)="changeCpiRegion($event)" [value]="cpiRegion" class="portal-select" id="select-cpi-region">
+                <option value="All Regions">All Regions</option>
+                <option value="North America">North America</option>
+                <option value="European Union">European Union</option>
+                <option value="Asia Pacific">Asia Pacific</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <p class="panel-desc-paragraph">
+          Analyze Consumer Price Index (CPI) inflation baskets and historical indicators. Segment granular chunks below to track platform value gaps.
+        </p>
+
+        <!-- Granularity Chunks Selector -->
+        <div class="settings-group" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+          <span class="settings-label" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Data Granularity (Toggles):</span>
+          <div class="pills-container w-full" style="max-width: 400px;">
+            <button (click)="setCpiGranularity('Monthly')" [ngClass]="{'active-pill': cpiDataGranularity === 'Monthly'}" class="portal-pill flex-1" id="btn-cpi-chunk-monthly">Monthly</button>
+            <button (click)="setCpiGranularity('Quarterly')" [ngClass]="{'active-pill': cpiDataGranularity === 'Quarterly'}" class="portal-pill flex-1" id="btn-cpi-chunk-quarterly">Quarterly</button>
+            <button (click)="setCpiGranularity('Annual')" [ngClass]="{'active-pill': cpiDataGranularity === 'Annual'}" class="portal-pill flex-1" id="btn-cpi-chunk-annual">Annual</button>
+          </div>
+        </div>
+
+        <!-- CPI Accordion layout -->
+        <div class="pivots-accordion-layout">
+          <!-- Accordion 1: Core CPI Rate -->
+          <div class="accordion-item glass-panel">
+            <button (click)="toggleCpiAccordion('Core')" class="accordion-header" id="panel-expand-cpi-core">
+              <span class="accordion-title">Core CPI Inflation Basket (Excludes Food & Energy)</span>
+              <span class="accordion-icon">{{ cpiExpandedSection === 'Core' ? '▼' : '▶' }}</span>
+            </button>
+            <div class="accordion-body" *ngIf="cpiExpandedSection === 'Core'">
+              <table class="pivots-data-table">
+                <thead>
+                  <tr><th>Sector</th><th>Weight</th><th>Annual Change ({{cpiRegion}})</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Shelter Index</td><td>32.4%</td><td>+5.2%</td></tr>
+                  <tr><td>Medical Care Services</td><td>6.8%</td><td>+2.1%</td></tr>
+                  <tr><td>Transportation services</td><td>5.9%</td><td>+9.4%</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Accordion 2: Energy & Food Basket -->
+          <div class="accordion-item glass-panel" style="margin-top: 0.75rem;">
+            <button (click)="toggleCpiAccordion('Energy')" class="accordion-header" id="panel-expand-cpi-energy">
+              <span class="accordion-title">Energy & Food Inflation Component Rates</span>
+              <span class="accordion-icon">{{ cpiExpandedSection === 'Energy' ? '▼' : '▶' }}</span>
+            </button>
+            <div class="accordion-body" *ngIf="cpiExpandedSection === 'Energy'">
+              <table class="pivots-data-table">
+                <thead>
+                  <tr><th>Energy/Food Index</th><th>Latest Value</th><th>Monthly Trend</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Crude Oil / Gasoline</td><td>$84.50/Bbl</td><td class="text-red">▼ -1.5%</td></tr>
+                  <tr><td>Electricity Index</td><td>218.40</td><td class="text-green">▲ +0.8%</td></tr>
+                  <tr><td>Food At Home Index</td><td>264.10</td><td class="text-green">▲ +0.2%</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. CANDLESTICK TAB -->
+    <div *ngIf="activeTab === 'candlestick'" class="tab-panel animate-fade-in">
+      <div class="glass-panel main-panel">
+        <div class="panel-header-row" style="border-bottom: 1px solid var(--border-glass); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+          <h3 class="panel-title">Candlestick Pattern Scanning</h3>
+          
+          <div class="controls-row">
+            <!-- Pattern filter selector -->
+            <div class="pills-container">
+              <button (click)="setCandlestickPattern('All')" [ngClass]="{'active-pill': candlestickPattern === 'All'}" class="portal-pill" id="btn-candle-pattern-all">All Patterns</button>
+              <button (click)="setCandlestickPattern('Doji')" [ngClass]="{'active-pill': candlestickPattern === 'Doji'}" class="portal-pill" id="btn-candle-pattern-doji">Doji Star</button>
+              <button (click)="setCandlestickPattern('Hammer')" [ngClass]="{'active-pill': candlestickPattern === 'Hammer'}" class="portal-pill" id="btn-candle-pattern-hammer">Hammer</button>
+            </div>
+            
+            <button (click)="submitCandlestickTrade()" class="portal-btn-primary glow-button" id="btn-candlestick-trade">
+              Trade Pattern
+            </button>
+          </div>
+        </div>
+
+        <p class="panel-desc-paragraph">
+          Analyze real-time candlestick pattern events mapped to predictive analytics filters. Engage with trading analysts via chat sidebar below.
+        </p>
+
+        <div class="ticker-dashboard-layout" style="margin-top: 1.5rem;">
+          <!-- Visual chart simulation card -->
+          <div class="ticker-right-panel" style="flex: 2;">
+            <div class="chart-backdrop" style="height: 320px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+              <div class="chart-trend-indicator text-green" style="font-size: 1.1rem; margin-bottom: 1rem;">
+                Visualizing Active Pattern: {{ candlestickPattern }}
+              </div>
+              <div style="display: flex; gap: 1rem; align-items: flex-end; height: 150px; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; width: 80%;">
+                <div style="width: 15%; background: #ff7675; height: 40px; border-radius: 2px; position: relative;"><span style="position: absolute; bottom:-20px; left:20%; font-size:10px;">Bear</span></div>
+                <div style="width: 15%; background: #ff7675; height: 60px; border-radius: 2px; position: relative;"><span style="position: absolute; bottom:-20px; left:20%; font-size:10px;">Bear</span></div>
+                <div style="width: 15%; background: #55efc4; height: 100px; border-radius: 2px; position: relative;"><span style="position: absolute; bottom:-20px; left:20%; font-size:10px;">Bull</span></div>
+                <div *ngIf="candlestickPattern === 'All' || candlestickPattern === 'Doji'" style="width: 15%; background: #dfe6e9; height: 80px; border-radius: 2px; position: relative; border-top: 2px solid white; border-bottom: 2px solid white;"><span style="position: absolute; bottom:-20px; left:20%; font-size:10px; font-weight:bold;">Doji</span></div>
+                <div *ngIf="candlestickPattern === 'All' || candlestickPattern === 'Hammer'" style="width: 15%; background: #55efc4; height: 120px; border-radius: 2px; position: relative;"><span style="position: absolute; bottom:-20px; left:20%; font-size:10px; font-weight:bold;">Hammer</span></div>
+                <div style="width: 15%; background: #55efc4; height: 130px; border-radius: 2px; position: relative;"><span style="position: absolute; bottom:-20px; left:20%; font-size:10px;">Bull</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat sidebar panel -->
+          <div class="ticker-left-panel" style="flex: 1;">
+            <div class="glass-panel flex-column-panel" style="padding: 1rem; height: 320px;">
+              <div class="panel-header-row" style="border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                <h4 class="card-subtitle">Analyst Chat</h4>
+                <button (click)="toggleChat()" class="portal-btn-secondary" id="btn-candlestick-chat" style="padding: 2px 8px; font-size: 0.75rem;">
+                  {{ chatOpen ? 'Minimize' : 'Chat' }}
+                </button>
+              </div>
+
+              <!-- Chat logs container -->
+              <div *ngIf="chatOpen" class="chat-logs-area" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem 0; font-size: 0.8rem; height: 180px;">
+                <div *ngFor="let msg of chatMessages" 
+                     [ngStyle]="{'align-self': msg.startsWith('You:') ? 'flex-end' : 'flex-start',
+                                'background': msg.startsWith('You:') ? 'var(--brand-gradient)' : 'rgba(255,255,255,0.1)'}" 
+                     style="padding: 6px 10px; border-radius: 12px; max-width: 85%; color: white;">
+                  {{ msg }}
+                </div>
+              </div>
+              
+              <div *ngIf="!chatOpen" style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.8rem; text-align: center;">
+                Click "Chat" to speak with a market analyst in real-time.
+              </div>
+
+              <!-- Chat inputs row -->
+              <div *ngIf="chatOpen" class="form-group-row" style="display: flex; gap: 0.5rem; border-top: 1px solid var(--border-glass); padding-top: 0.5rem; margin-top: auto;">
+                <input type="text" [(ngModel)]="newChatMessage" (keyup.enter)="sendChatMessage()" placeholder="Type a message..." class="portal-input-inline" style="flex: 1; font-size: 0.8rem;" id="input-chat-text">
+                <button (click)="sendChatMessage()" class="portal-btn-primary" id="btn-send-chat" style="padding: 4px 10px; font-size: 0.8rem;">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

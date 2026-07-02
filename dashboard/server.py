@@ -1,6 +1,9 @@
 import os
 import io
 import csv
+import json
+import urllib.request
+from datetime import datetime, timedelta
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -118,8 +121,8 @@ def recalculate_metrics():
     try:
         from scoring_engine.tasks import run_intent_scoring
         from benchmarking.tasks import run_user_benchmarking
-        run_intent_scoring(days_lookback=14)
-        run_user_benchmarking()
+        run_intent_scoring.run(days_lookback=14)
+        run_user_benchmarking.run()
     except Exception as e:
         print(f"Error recalculating metrics in background: {e}")
 
@@ -262,6 +265,113 @@ def get_tracker_events():
         return JSONResponse({"status": "success", "data": jsonable_encoder(rows)})
     except Exception as e:
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
+# Load Partner API Key from environment or manual .env file
+NEOTRADER_API_KEY = os.getenv("NEOTRADER_API_KEY")
+if not NEOTRADER_API_KEY:
+    try:
+        # Resolve workspace root .env file
+        env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+        if os.path.exists(env_path):
+            with open(env_path, "r") as f:
+                for line in f:
+                    if line.strip() and not line.startswith("#"):
+                        parts = line.strip().split("=", 1)
+                        if len(parts) == 2 and parts[0].strip() == "NEOTRADER_API_KEY":
+                            NEOTRADER_API_KEY = parts[1].strip().strip('"').strip("'")
+                            break
+    except Exception as e:
+        print(f"Error reading .env manually: {e}")
+
+def resolve_email(user_id: str) -> str:
+    """Helper to resolve a customer email address from a user_id."""
+    if "@" in user_id:
+        return user_id
+        
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Check captured_events
+        cursor.execute("SELECT DISTINCT user_email FROM captured_events WHERE user_email IS NOT NULL AND user_email LIKE %s LIMIT 1;", (f"%{user_id}%",))
+        row = cursor.fetchone()
+        if row:
+            cursor.close()
+            conn.close()
+            return row[0]
+            
+        # Check js_tracked_events
+        cursor.execute("SELECT DISTINCT user_email FROM js_tracked_events WHERE user_email IS NOT NULL AND user_email LIKE %s LIMIT 1;", (f"%{user_id}%",))
+        row = cursor.fetchone()
+        if row:
+            cursor.close()
+            conn.close()
+            return row[0]
+            
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"Error mapping user_id to email: {e}")
+        
+    # Standard mapping fallback for local mock users
+    if user_id.startswith("user_"):
+        return f"{user_id}@neotraders.com"
+    return f"{user_id}@example.com"
+
+@app.get("/api/customers/{user_id_or_email}")
+def get_customer_details(user_id_or_email: str):
+    """Proxy API to call the Partner API securely, falling back to mock profiles if needed."""
+    email = resolve_email(user_id_or_email)
+    use_mock_fallback = False
+    
+    if not NEOTRADER_API_KEY or "neotrader_XXXX" in NEOTRADER_API_KEY:
+        use_mock_fallback = True
+        
+    if not use_mock_fallback:
+        try:
+            url = "https://api.app.neotrader.in/v1/api/partner/customers-details"
+            headers = {
+                "X-API-Key": NEOTRADER_API_KEY,
+                "Content-Type": "application/json"
+            }
+            payload = json.dumps({"email": email}).encode("utf-8")
+            req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
+            
+            with urllib.request.urlopen(req, timeout=5) as response:
+                if response.status == 200:
+                    result = json.loads(response.read().decode("utf-8"))
+                    return JSONResponse({"status": "success", "data": result})
+        except Exception as e:
+            print(f"Partner API request failed: {e}. Falling back to mock details.")
+            use_mock_fallback = True
+            
+    if use_mock_fallback:
+        # Generate consistent mock customer profile details based on string hash
+        clean_name = user_id_or_email.replace("_", " ").title()
+        if "@" in clean_name:
+            clean_name = clean_name.split("@")[0].replace(".", " ").title()
+            
+        hash_val = sum(ord(c) for c in email)
+        plans = ["Starter Plan", "Pro Plan", "Enterprise Suite", None]
+        statuses = ["Active", "Trialing", "Past Due", "Cancelled"]
+        
+        plan = plans[hash_val % len(plans)]
+        status = statuses[hash_val % len(statuses)] if plan else None
+        
+        days_ago = hash_val % 300 + 10
+        created_at_dt = datetime.now() - timedelta(days=days_ago)
+        created_at = created_at_dt.strftime("%Y-%m-%dT%H:%M:%S")
+        
+        mock_data = {
+            "email": email,
+            "full_name": clean_name,
+            "phone": f"9820{hash_val % 900000 + 100000}",
+            "subscription_plan": plan,
+            "subscription_status": status,
+            "is_active": status in ["Active", "Trialing"] if status else True,
+            "created_at": created_at
+        }
+        return JSONResponse({"status": "success", "data": mock_data})
 
 # Mount the static dashboard files
 app.mount("/", StaticFiles(directory="dashboard/public", html=True), name="public")

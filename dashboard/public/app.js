@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // UI Elements
     const tbody = document.getElementById('leadsTableBody');
     const powerUsersTbody = document.getElementById('powerUsersTableBody');
+    let currentFilteredData = [];
     // Date filter state
     let activeDatePreset = 'all';
     let customDateFrom = null;
@@ -284,6 +285,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
             `;
 
+            tr.addEventListener('click', () => {
+                openCustomerDrawer(lead.user_id, lead);
+            });
+
             tbody.appendChild(tr);
         });
 
@@ -294,6 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 fill.style.width = fill.getAttribute('data-target');
             });
         }, 50);
+
+        currentFilteredData = filtered;
     }
 
     // Render power users table
@@ -450,6 +457,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
             `;
 
+            tr.addEventListener('click', () => {
+                openCustomerDrawer(lead.user_id, lead);
+            });
+
             powerUsersTbody.appendChild(tr);
         });
 
@@ -460,6 +471,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 fill.style.width = fill.getAttribute('data-target');
             });
         }, 50);
+
+        currentFilteredData = filtered;
     }
 
     // Filter pills selection handler
@@ -488,6 +501,66 @@ document.addEventListener('DOMContentLoaded', () => {
         exportBtn.addEventListener('click', () => {
             window.location.href = '/api/export';
         });
+    }
+
+    function handleExcelExport() {
+        if (typeof XLSX === 'undefined') {
+            alert("Excel export library is still loading. Please try again in a moment.");
+            return;
+        }
+
+        if (!currentFilteredData || currentFilteredData.length === 0) {
+            alert("No data available to export.");
+            return;
+        }
+
+        const isPowerUsersPage = !!powerUsersTbody;
+        const filename = isPowerUsersPage ? 'neotrader_power_users.xlsx' : 'neotrader_sales_triggers.xlsx';
+        
+        // Map data to user-friendly column names
+        const exportRows = currentFilteredData.map(lead => {
+            const row = {
+                "User ID": lead.user_id,
+                "Conversion Probability (%)": lead.conversion_probability || 0,
+                "Reason to Call": lead.trigger_reason || "Routine Check-in",
+                "Missing Key Feature": lead.missing_key_feature || "N/A",
+                "Conviction Score": Math.round(parseFloat(lead.high_conviction_score || 0)),
+                "Evaluation Score": Math.round(parseFloat(lead.evaluation_score || 0)),
+                "Friction Score": Math.round(parseFloat(lead.friction_score || 0))
+            };
+            
+            if (isPowerUsersPage) {
+                row["Value Gap (%)"] = Math.round(parseFloat(lead.value_gap_percentage || 0));
+                row["Habit Classification"] = lead.habit_classification || "N/A";
+                row["Last Analyzed"] = lead.last_calculated_at ? new Date(lead.last_calculated_at).toLocaleString() : "N/A";
+            }
+            
+            return row;
+        });
+
+        // Use SheetJS to write binary XLSX
+        const worksheet = XLSX.utils.json_to_sheet(exportRows);
+        
+        // Adjust column widths automatically for clean styling
+        const colWidths = Object.keys(exportRows[0] || {}).map(key => {
+            let maxLen = key.length;
+            exportRows.forEach(row => {
+                const val = String(row[key] || '');
+                if (val.length > maxLen) maxLen = val.length;
+            });
+            return { wch: maxLen + 2 };
+        });
+        worksheet['!cols'] = colWidths;
+        
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, isPowerUsersPage ? "Power Users" : "Sales Triggers");
+        XLSX.writeFile(workbook, filename);
+    }
+
+    // Excel Export handler
+    const exportExcelBtn = document.getElementById('exportExcelBtn');
+    if (exportExcelBtn) {
+        exportExcelBtn.addEventListener('click', handleExcelExport);
     }
 
     // Date preset pills handler (Power Users page)
@@ -683,4 +756,207 @@ document.addEventListener('DOMContentLoaded', () => {
             loadRecentEvents();
         });
     }, 15000);
+
+    // ==========================================================================
+    // CUSTOMER PROFILE DRAWER (CRM-STYLE SLIDE-OUT)
+    // ==========================================================================
+    const customerDrawer = document.getElementById('customerDrawer');
+    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+    const drawerContent = document.getElementById('drawerContent');
+
+    if (closeDrawerBtn) {
+        closeDrawerBtn.addEventListener('click', closeCustomerDrawer);
+    }
+    
+    // Close drawer when clicking outside it (and not on interactive elements)
+    document.addEventListener('click', (e) => {
+        if (customerDrawer && customerDrawer.classList.contains('open')) {
+            const clickedInsideDrawer = customerDrawer.contains(e.target);
+            const clickedTableRow = e.target.closest('tbody tr');
+            const clickedToast = e.target.closest('#copyToast');
+            if (!clickedInsideDrawer && !clickedTableRow && !clickedToast) {
+                closeCustomerDrawer();
+            }
+        }
+    });
+
+    function closeCustomerDrawer() {
+        if (customerDrawer) {
+            customerDrawer.classList.remove('open');
+        }
+    }
+
+    async function openCustomerDrawer(userId, leadData) {
+        if (!customerDrawer || !drawerContent) return;
+        
+        customerDrawer.classList.add('open');
+        
+        // Render Skeleton Loader
+        drawerContent.innerHTML = `
+            <div class="drawer-profile-summary">
+                <div class="skeleton-circle"></div>
+                <div class="skeleton-text short" style="margin-top: 0.5rem;"></div>
+                <div class="skeleton-text medium"></div>
+            </div>
+            
+            <div class="drawer-card">
+                <div class="drawer-card-title">Contact Information</div>
+                <div class="skeleton-text long"></div>
+                <div class="skeleton-text long"></div>
+            </div>
+            
+            <div class="drawer-card">
+                <div class="drawer-card-title">Telemetry & Conversion</div>
+                <div class="skeleton-text long"></div>
+                <div class="skeleton-text short"></div>
+            </div>
+        `;
+        
+        try {
+            const response = await fetch(`/api/customers/${encodeURIComponent(userId)}`);
+            const resData = await response.json();
+            
+            if (resData.status === 'success' && resData.data) {
+                const customer = resData.data;
+                
+                const colors = ['#e11d48', '#2563eb', '#059669', '#d97706', '#7c3aed', '#0891b2'];
+                let charCodeSum = 0;
+                const nameForAvatar = customer.full_name || userId;
+                for (let i = 0; i < nameForAvatar.length; i++) charCodeSum += nameForAvatar.charCodeAt(i);
+                const avatarBg = colors[charCodeSum % colors.length];
+                
+                const initials = nameForAvatar.split(' ')
+                    .map(word => word[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase() || 'U';
+                
+                let creationDate = 'N/A';
+                if (customer.created_at) {
+                    const d = new Date(customer.created_at);
+                    creationDate = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                }
+                
+                const planName = customer.subscription_plan || 'Free Account';
+                const statusName = customer.subscription_status || 'Unsubscribed';
+                const is_active = customer.is_active;
+                
+                let planColor = '#64748b';
+                if (planName.includes('Pro')) planColor = 'var(--accent-teal)';
+                if (planName.includes('Enterprise')) planColor = 'var(--accent-blue)';
+                
+                let statusColor = '#ef4444';
+                if (statusName === 'Active' || statusName === 'Trialing' || is_active) statusColor = 'var(--accent-green)';
+                if (statusName === 'Past Due') statusColor = 'var(--accent-yellow)';
+                
+                const convictionVal = Math.round(parseFloat(leadData.high_conviction_score || 0));
+                const evaluationVal = Math.round(parseFloat(leadData.evaluation_score || 0));
+                const frictionVal = Math.round(parseFloat(leadData.friction_score || 0));
+                const valueGapVal = leadData.value_gap_percentage !== undefined ? Math.round(parseFloat(leadData.value_gap_percentage || 0)) : null;
+                const prob = leadData.conversion_probability || 0;
+                
+                let probClass = 'prob-low';
+                if (prob > 70) probClass = 'prob-high';
+                else if (prob > 40) probClass = 'prob-med';
+                
+                drawerContent.innerHTML = `
+                    <div class="drawer-profile-summary">
+                        <div class="drawer-avatar" style="background-color: ${avatarBg}">${initials}</div>
+                        <h3 class="drawer-name">${customer.full_name || 'Anonymous User'}</h3>
+                        <span class="drawer-email-sub">${customer.email}</span>
+                        <div style="margin-top: 0.25rem; display: flex; gap: 0.5rem; justify-content: center;">
+                            <span class="pill" style="font-size: 0.65rem; background: ${planColor}15; color: ${planColor}; border: 1px solid ${planColor}40; padding: 2px 8px; border-radius: 20px;">${planName}</span>
+                            <span class="pill" style="font-size: 0.65rem; background: ${statusColor}15; color: ${statusColor}; border: 1px solid ${statusColor}40; padding: 2px 8px; border-radius: 20px;">${statusName}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="drawer-card">
+                        <div class="drawer-card-title">Contact Information</div>
+                        <div class="drawer-info-row">
+                            <span class="drawer-info-label">Phone Number</span>
+                            <div class="drawer-info-value copyable" onclick="navigator.clipboard.writeText('${customer.phone || ''}').then(() => showCopyToast('Phone number copied!'))">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                <span>${customer.phone || 'No phone record'}</span>
+                            </div>
+                        </div>
+                        <div class="drawer-info-row">
+                            <span class="drawer-info-label">Customer Since</span>
+                            <span class="drawer-info-value">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                <span>${creationDate}</span>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="drawer-card">
+                        <div class="drawer-card-title">Telemetry & Conversion</div>
+                        
+                        <div class="drawer-metric-grid">
+                            <div class="drawer-metric-box">
+                                <div class="drawer-metric-val" style="color: var(--accent-blue);">${convictionVal}</div>
+                                <div class="drawer-metric-lbl">Conviction</div>
+                            </div>
+                            <div class="drawer-metric-box">
+                                <div class="drawer-metric-val" style="color: var(--accent-teal);">${evaluationVal}</div>
+                                <div class="drawer-metric-lbl">Evaluation</div>
+                            </div>
+                            <div class="drawer-metric-box">
+                                <div class="drawer-metric-val" style="color: var(--accent-red);">${frictionVal}</div>
+                                <div class="drawer-metric-lbl">Friction</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="drawer-info-label">Conversion Probability</span>
+                                <span class="prob-badge ${probClass}" style="font-size: 0.8rem; padding: 3px 10px;">${prob}%</span>
+                            </div>
+                            ${valueGapVal !== null ? `
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="drawer-info-label">Value Gap</span>
+                                <span style="font-weight: 600; color: var(--accent-orange); font-size: 0.9rem;">${valueGapVal}%</span>
+                            </div>
+                            ` : ''}
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                <span class="drawer-info-label">Habit Classification</span>
+                                <span style="font-size: 0.9rem; font-weight: 500;">${leadData.habit_classification || 'Occasional Visitor'}</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                <span class="drawer-info-label">Trigger Insight</span>
+                                <span style="font-size: 0.85rem; line-height: 1.25rem; color: var(--text-primary); background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border-left: 3px solid ${leadData.trigger_reason && (leadData.trigger_reason.includes('Upgrade') || leadData.trigger_reason.includes('Upsell')) ? 'var(--accent-teal)' : leadData.trigger_reason && (leadData.trigger_reason.includes('Churn') || leadData.trigger_reason.includes('Drop') || leadData.trigger_reason.includes('Risk')) ? 'var(--accent-red)' : 'var(--text-muted)'}; font-family: var(--font-sans);">
+                                    ${leadData.trigger_reason || 'Routine Check-in: Stable usage pattern.'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                throw new Error(resData.message || "Failed to load customer profile details");
+            }
+        } catch (error) {
+            console.error("Error loading customer profile:", error);
+            drawerContent.innerHTML = `
+                <div style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted);">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem; opacity: 0.5;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <p style="font-size: 0.9rem; line-height: 1.4rem;">Could not fetch profile details for this customer.</p>
+                    <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.7;">Check backend log or try refreshing the dashboard.</p>
+                </div>
+            `;
+        }
+    }
+    
+    window.showCopyToast = function(msg) {
+        let toast = document.getElementById('copyToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'copyToast';
+            toast.className = 'copy-toast';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2000);
+    }
 });

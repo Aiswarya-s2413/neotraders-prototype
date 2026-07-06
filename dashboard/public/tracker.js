@@ -115,3 +115,58 @@ window.Tracker = {
         });
     }
 };
+
+// Automatically attempt to detect logged-in users on load (zero-code integration support)
+window.addEventListener('DOMContentLoaded', () => {
+    let checkAttempts = 0;
+    const maxAttempts = 20; // Check periodically for up to 10 seconds
+
+    const autoDetectUser = () => {
+        if (window.Tracker.email) return; // Already initialized manually
+
+        // 1. Try to read from standard localStorage / sessionStorage keys
+        const storageKeys = ['user_email', 'email', 'user', 'currentUser'];
+        for (const key of storageKeys) {
+            try {
+                const val = localStorage.getItem(key) || sessionStorage.getItem(key);
+                if (val && val.includes('@')) {
+                    window.Tracker.init(val.trim());
+                    console.log('Tracker auto-detected user from browser storage:', val);
+                    return;
+                }
+            } catch (e) {}
+        }
+
+        // 2. Try to read from standard DOM element selectors (like the display ID they provide)
+        const selectors = [
+            '#user-email-display',
+            '.user-email-display',
+            '#username',
+            '.username',
+            '.user-email',
+            '.user-profile-name',
+            '#user-profile-email'
+        ];
+        
+        for (const selector of selectors) {
+            const el = document.querySelector(selector);
+            if (el && el.textContent) {
+                const text = el.textContent.trim();
+                if (text && text.includes('@')) {
+                    window.Tracker.init(text);
+                    console.log('Tracker auto-detected user from DOM (' + selector + '):', text);
+                    return;
+                }
+            }
+        }
+
+        // 3. Retry in case Angular is still rendering elements
+        checkAttempts++;
+        if (checkAttempts < maxAttempts) {
+            setTimeout(autoDetectUser, 500);
+        }
+    };
+
+    autoDetectUser();
+});
+

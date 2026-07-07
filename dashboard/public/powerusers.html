@@ -37,7 +37,7 @@
                             <span class="nav-label">Power Users</span>
                             <span class="nav-badge text-muted" id="badgePowerUsers">0</span>
                         </a>
-                        <a href="#" class="nav-item">
+                        <a href="#" class="nav-item" id="sidebarRenewalRisk">
                             <span class="nav-label">Renewal Risk</span>
                             <span class="nav-badge text-muted" id="badgeRenewalRisk">0</span>
                         </a>
@@ -48,17 +48,17 @@
                 <div class="sidebar-group">
                     <span class="group-title">COHORTS</span>
                     <nav class="nav-menu">
-                        <a href="#" class="nav-item">
+                        <a href="#" class="nav-item" id="sidebarDailyRitual">
                             <span class="nav-label-dot dot-green"></span>
                             <span class="nav-label">Daily Ritual</span>
                             <span class="nav-count" id="countDailyRitual">0</span>
                         </a>
-                        <a href="#" class="nav-item">
+                        <a href="#" class="nav-item" id="sidebarConsistent">
                             <span class="nav-label-dot dot-teal"></span>
                             <span class="nav-label">Consistent User</span>
                             <span class="nav-count" id="countConsistent">0</span>
                         </a>
-                        <a href="#" class="nav-item">
+                        <a href="#" class="nav-item" id="sidebarOccasional">
                             <span class="nav-label-dot dot-yellow"></span>
                             <span class="nav-label">Occasional Visitor</span>
                             <span class="nav-count" id="countOccasional">0</span>
@@ -126,7 +126,7 @@
             <!-- 5 KPI Cards for Power Users -->
             <div class="kpi-grid">
                 <!-- Card 1: Total Power Users -->
-                <div class="kpi-card glass-panel animate-fade-in-up delay-1">
+                <div class="kpi-card glass-panel animate-fade-in-up delay-1" id="kpiCardTotalPowerUsers">
                     <span class="kpi-label">TOTAL POWER USERS</span>
                     <div class="kpi-value-row">
                         <h3 class="kpi-value" id="kpiTotalPowerUsers">0</h3>
@@ -135,7 +135,7 @@
                 </div>
 
                 <!-- Card 2: Avg Conviction Score -->
-                <div class="kpi-card glass-panel animate-fade-in-up delay-2">
+                <div class="kpi-card glass-panel animate-fade-in-up delay-2" id="kpiCardAvgConviction">
                     <span class="kpi-label">AVG CONVICTION</span>
                     <div class="kpi-value-row">
                         <h3 class="kpi-value" id="kpiAvgConviction">0</h3>
@@ -144,7 +144,7 @@
                 </div>
 
                 <!-- Card 3: Avg Value Gap -->
-                <div class="kpi-card glass-panel animate-fade-in-up delay-3">
+                <div class="kpi-card glass-panel animate-fade-in-up delay-3" id="kpiCardAvgValueGap">
                     <span class="kpi-label">AVG VALUE GAP</span>
                     <div class="kpi-value-row">
                         <h3 class="kpi-value" id="kpiAvgValueGap">0%</h3>
@@ -153,7 +153,7 @@
                 </div>
 
                 <!-- Card 4: Top Missing Feature -->
-                <div class="kpi-card glass-panel animate-fade-in-up delay-4">
+                <div class="kpi-card glass-panel animate-fade-in-up delay-4" id="kpiCardTopMissingFeature">
                     <span class="kpi-label">TOP GAP FEATURE</span>
                     <div class="kpi-value-row">
                         <h3 class="kpi-value" id="kpiTopMissingFeature" style="font-size: 1.15rem; line-height: 1.5rem; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 100%;">N/A</h3>
@@ -162,7 +162,7 @@
                 </div>
 
                 <!-- Card 5: Avg Probability -->
-                <div class="kpi-card glass-panel animate-fade-in-up delay-5">
+                <div class="kpi-card glass-panel animate-fade-in-up delay-5" id="kpiCardAvgProbability">
                     <span class="kpi-label">AVG PROBABILITY</span>
                     <div class="kpi-value-row">
                         <h3 class="kpi-value" id="kpiAvgProbability">0%</h3>

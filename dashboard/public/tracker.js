@@ -2,8 +2,17 @@
 
 window.Tracker = {
     email: '',
-    apiEndpoint: '/api/tracker-events',
+    apiEndpoint: (function() {
+        if (typeof document !== 'undefined' && document.currentScript && document.currentScript.src) {
+            try {
+                const url = new URL(document.currentScript.src);
+                return `${url.origin}/api/tracker-events`;
+            } catch (e) {}
+        }
+        return '/api/tracker-events';
+    })(),
     _autoTrackingSetup: false,
+    _routeTrackingSetup: false,
 
     // Initialize with the user's email ID
     init(email, endpoint) {
@@ -13,6 +22,49 @@ window.Tracker = {
         
         // Setup automatic click tracking for elements with an ID
         this.setupAutoTracking();
+        // Setup automatic SPA page tracking
+        this.setupRouteTracking();
+    },
+
+    // Setup automatic route/page tracking for SPAs
+    setupRouteTracking() {
+        if (this._routeTrackingSetup) return;
+        this._routeTrackingSetup = true;
+
+        const trackPageVisit = () => {
+            if (!this.email) {
+                this.detectUser();
+            }
+            if (this.email) {
+                this.track('page_visited', `User navigated to: ${window.location.pathname}${window.location.search}`, {
+                    category_a: true
+                }).catch(() => {});
+            }
+        };
+
+        // Track current page on route tracking setup
+        trackPageVisit();
+
+        // Intercept pushState
+        const originalPushState = history.pushState;
+        if (originalPushState) {
+            history.pushState = function() {
+                originalPushState.apply(this, arguments);
+                trackPageVisit();
+            };
+        }
+
+        // Intercept replaceState
+        const originalReplaceState = history.replaceState;
+        if (originalReplaceState) {
+            history.replaceState = function() {
+                originalReplaceState.apply(this, arguments);
+                trackPageVisit();
+            };
+        }
+
+        window.addEventListener('popstate', trackPageVisit);
+        window.addEventListener('hashchange', trackPageVisit);
     },
 
     // Setup automatic click tracking for interactive elements with an HTML ID
@@ -22,6 +74,11 @@ window.Tracker = {
 
         console.log('Tracker auto-tracking active: capturing clicks on elements with an "id" attribute.');
         document.addEventListener('click', (event) => {
+            // Fallback: dynamic detection on click in case email element loaded later
+            if (!this.email) {
+                this.detectUser();
+            }
+
             let target = event.target;
             while (target && target !== document) {
                 if (target.id) {
@@ -39,7 +96,7 @@ window.Tracker = {
                             `Auto-tracked click on <${tagName}> with ID: "${elementId}"`,
                             { category_b: true },
                             elementId
-                        );
+                        ).catch(() => {});
                         break;
                     }
                 }
@@ -113,16 +170,11 @@ window.Tracker = {
             console.error('Failed to track event:', err);
             throw err;
         });
-    }
-};
+    },
 
-// Automatically attempt to detect logged-in users on load (zero-code integration support)
-window.addEventListener('DOMContentLoaded', () => {
-    let checkAttempts = 0;
-    const maxAttempts = 20; // Check periodically for up to 10 seconds
-
-    const autoDetectUser = () => {
-        if (window.Tracker.email) return; // Already initialized manually
+    // Detect user email dynamically from browser storage or DOM
+    detectUser() {
+        if (this.email) return true;
 
         // 1. Try to read from standard localStorage / sessionStorage keys
         const storageKeys = ['user_email', 'email', 'user', 'currentUser'];
@@ -130,9 +182,9 @@ window.addEventListener('DOMContentLoaded', () => {
             try {
                 const val = localStorage.getItem(key) || sessionStorage.getItem(key);
                 if (val && val.includes('@')) {
-                    window.Tracker.init(val.trim());
+                    this.init(val.trim());
                     console.log('Tracker auto-detected user from browser storage:', val);
-                    return;
+                    return true;
                 }
             } catch (e) {}
         }
@@ -153,14 +205,28 @@ window.addEventListener('DOMContentLoaded', () => {
             if (el && el.textContent) {
                 const text = el.textContent.trim();
                 if (text && text.includes('@')) {
-                    window.Tracker.init(text);
+                    this.init(text);
                     console.log('Tracker auto-detected user from DOM (' + selector + '):', text);
-                    return;
+                    return true;
                 }
             }
         }
+        return false;
+    }
+};
 
-        // 3. Retry in case Angular is still rendering elements
+// Automatically attempt to detect logged-in users on load (zero-code integration support)
+window.addEventListener('DOMContentLoaded', () => {
+    // Set up auto click tracking immediately so that click events are captured even before login
+    window.Tracker.setupAutoTracking();
+
+    let checkAttempts = 0;
+    const maxAttempts = 20; // Check periodically for up to 10 seconds
+
+    const autoDetectUser = () => {
+        if (window.Tracker.detectUser()) return; // Successfully detected
+
+        // Retry in case Angular is still rendering elements
         checkAttempts++;
         if (checkAttempts < maxAttempts) {
             setTimeout(autoDetectUser, 500);

@@ -14,6 +14,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const streamTime = document.getElementById('streamTime');
     const exportBtn = document.getElementById('exportBtn');
 
+    // Live Triggers filter & export elements
+    const exportTriggersExcelBtn = document.getElementById('exportTriggersExcelBtn');
+    const triggerDateFrom = document.getElementById('triggerDateFrom');
+    const triggerDateTo = document.getElementById('triggerDateTo');
+    const triggerDateApplyBtn = document.getElementById('triggerDateApplyBtn');
+    const triggerDateClearBtn = document.getElementById('triggerDateClearBtn');
+    const triggersSubtitle = document.getElementById('triggersSubtitle');
+    
+    let recentEventsList = [];
+    let triggerDateFromVal = null;
+    let triggerDateToVal = null;
+
     // KPI Elements (Sales Triggers Page)
     const kpiTotalLeads = document.getElementById('kpiTotalLeads');
     const kpiHighConviction = document.getElementById('kpiHighConviction');
@@ -39,6 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allLeads = [];
     let activeFilter = 'all';
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const filterParam = urlParams.get('filter');
+        if (filterParam) {
+            activeFilter = filterParam;
+        }
+    } catch(e) {}
 
     // Update Live Clock Time
     function updateClock() {
@@ -197,6 +216,14 @@ document.addEventListener('DOMContentLoaded', () => {
             filtered = allLeads.filter(l => parseFloat(l.friction_score || 0) >= 40);
         } else if (activeFilter === 'high-value') {
             filtered = allLeads.filter(l => parseFloat(l.high_conviction_score || 0) >= 40);
+        } else if (activeFilter === 'cohort-daily') {
+            filtered = allLeads.filter(l => l.habit_classification === 'Daily Ritual');
+        } else if (activeFilter === 'cohort-consistent') {
+            filtered = allLeads.filter(l => l.habit_classification === 'Consistent User');
+        } else if (activeFilter === 'cohort-occasional') {
+            filtered = allLeads.filter(l => l.habit_classification === 'Occasional Visitor');
+        } else if (activeFilter === 'prob-high') {
+            filtered = allLeads.filter(l => parseInt(l.conversion_probability || 0) >= 70);
         }
 
         // Apply search query
@@ -308,6 +335,57 @@ document.addEventListener('DOMContentLoaded', () => {
         powerUsersTbody.innerHTML = '';
         
         let filtered = allLeads.filter(l => parseFloat(l.high_conviction_score || 0) >= 50);
+
+        // Apply dynamic interactive filters for KPI / sidebar clicks on power users page
+        if (activeFilter === 'cohort-daily') {
+            filtered = filtered.filter(l => l.habit_classification === 'Daily Ritual');
+        } else if (activeFilter === 'cohort-consistent') {
+            filtered = filtered.filter(l => l.habit_classification === 'Consistent User');
+        } else if (activeFilter === 'cohort-occasional') {
+            filtered = filtered.filter(l => l.habit_classification === 'Occasional Visitor');
+        } else if (activeFilter === 'risk') {
+            filtered = filtered.filter(l => parseFloat(l.friction_score || 0) >= 40);
+        } else if (activeFilter === 'upgrade') {
+            filtered = filtered.filter(l => parseFloat(l.evaluation_score || 0) >= 40);
+        } else if (activeFilter === 'conviction-above-avg') {
+            if (filtered.length > 0) {
+                const total = filtered.reduce((sum, u) => sum + parseFloat(u.high_conviction_score || 0), 0);
+                const avg = total / filtered.length;
+                filtered = filtered.filter(l => parseFloat(l.high_conviction_score || 0) > avg);
+            }
+        } else if (activeFilter === 'value-gap-above-avg') {
+            if (filtered.length > 0) {
+                const total = filtered.reduce((sum, u) => sum + parseFloat(u.value_gap_percentage || 0), 0);
+                const avg = total / filtered.length;
+                filtered = filtered.filter(l => parseFloat(l.value_gap_percentage || 0) > avg);
+            }
+        } else if (activeFilter === 'top-gap-feature') {
+            if (filtered.length > 0) {
+                const featureCounts = {};
+                filtered.forEach(u => {
+                    if (u.missing_key_feature && u.missing_key_feature !== 'N/A') {
+                        featureCounts[u.missing_key_feature] = (featureCounts[u.missing_key_feature] || 0) + 1;
+                    }
+                });
+                let topFeature = null;
+                let maxCount = 0;
+                for (const feature in featureCounts) {
+                    if (featureCounts[feature] > maxCount) {
+                        maxCount = featureCounts[feature];
+                        topFeature = feature;
+                    }
+                }
+                if (topFeature) {
+                    filtered = filtered.filter(l => l.missing_key_feature === topFeature);
+                }
+            }
+        } else if (activeFilter === 'probability-above-avg') {
+            if (filtered.length > 0) {
+                const total = filtered.reduce((sum, u) => sum + parseInt(u.conversion_probability || 0), 0);
+                const avg = total / filtered.length;
+                filtered = filtered.filter(l => parseInt(l.conversion_probability || 0) > avg);
+            }
+        }
 
         // Apply search query
         const term = searchInput ? searchInput.value.toLowerCase().trim() : '';
@@ -475,16 +553,190 @@ document.addEventListener('DOMContentLoaded', () => {
         currentFilteredData = filtered;
     }
 
+    function syncFilterPillsUI() {
+        if (!filterPills) return;
+        
+        // Remove active class from all static pills
+        filterPills.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        
+        // Remove any temporary custom pills
+        const tempPill = document.getElementById('tempFilterPill');
+        if (tempPill) tempPill.remove();
+
+        // Highlight matching static pill
+        const matchingPill = filterPills.querySelector(`.pill[data-filter="${activeFilter}"]`);
+        if (matchingPill) {
+            matchingPill.classList.add('active');
+        } else if (activeFilter !== 'all') {
+            // It's a custom/cohort filter, let's create a temporary active pill so they can clear it!
+            let label = activeFilter;
+            if (activeFilter === 'cohort-daily') label = 'Daily Ritual';
+            else if (activeFilter === 'cohort-consistent') label = 'Consistent';
+            else if (activeFilter === 'cohort-occasional') label = 'Occasional';
+            else if (activeFilter === 'prob-high') label = 'Prob. >= 70%';
+            else if (activeFilter === 'conviction-above-avg') label = 'Conviction > Avg';
+            else if (activeFilter === 'value-gap-above-avg') label = 'Value Gap > Avg';
+            else if (activeFilter === 'top-gap-feature') label = 'Top Gap Feature';
+            else if (activeFilter === 'probability-above-avg') label = 'Prob. > Avg';
+            else if (activeFilter === 'risk') label = 'Churn Risk';
+            else if (activeFilter === 'upgrade') label = 'Upgrade-ready';
+            
+            const pill = document.createElement('button');
+            pill.id = 'tempFilterPill';
+            pill.className = 'pill active';
+            pill.style.background = 'rgba(99,102,241,0.22)';
+            pill.style.borderColor = '#6366f1';
+            pill.style.color = '#c7d2fe';
+            pill.innerHTML = `${label} <span style="margin-left: 6px; font-weight: bold; opacity: 0.7;">&times;</span>`;
+            pill.addEventListener('click', (e) => {
+                e.stopPropagation();
+                activeFilter = 'all';
+                syncFilterPillsUI();
+                renderTable();
+            });
+            filterPills.appendChild(pill);
+        }
+    }
+
     // Filter pills selection handler
     if (filterPills) {
         filterPills.addEventListener('click', (e) => {
             const btn = e.target.closest('.pill');
-            if (!btn) return;
-
-            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
+            if (!btn || btn.id === 'tempFilterPill') return;
 
             activeFilter = btn.dataset.filter;
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+
+    // --- KPI CARDS CLICK HANDLERS (SALES TRIGGERS PAGE) ---
+    const kpiCardTotalLeads = document.getElementById('kpiCardTotalLeads');
+    const kpiCardHighConviction = document.getElementById('kpiCardHighConviction');
+    const kpiCardUpgradeReady = document.getElementById('kpiCardUpgradeReady');
+    const kpiCardChurnRisk = document.getElementById('kpiCardChurnRisk');
+    const kpiCardAvgProbability = document.getElementById('kpiCardAvgProbability');
+
+    if (kpiCardTotalLeads) {
+        kpiCardTotalLeads.addEventListener('click', () => {
+            activeFilter = 'all';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+    if (kpiCardHighConviction) {
+        kpiCardHighConviction.addEventListener('click', () => {
+            activeFilter = 'high-value';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+    if (kpiCardUpgradeReady) {
+        kpiCardUpgradeReady.addEventListener('click', () => {
+            activeFilter = 'upgrade';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+    if (kpiCardChurnRisk) {
+        kpiCardChurnRisk.addEventListener('click', () => {
+            activeFilter = 'risk';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+    if (kpiCardAvgProbability && !powerUsersTbody) {
+        kpiCardAvgProbability.addEventListener('click', () => {
+            activeFilter = 'prob-high';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+
+    // --- KPI CARDS CLICK HANDLERS (POWER USERS PAGE) ---
+    const kpiCardTotalPowerUsers = document.getElementById('kpiCardTotalPowerUsers');
+    const kpiCardAvgConviction = document.getElementById('kpiCardAvgConviction');
+    const kpiCardAvgValueGap = document.getElementById('kpiCardAvgValueGap');
+    const kpiCardTopMissingFeature = document.getElementById('kpiCardTopMissingFeature');
+
+    if (kpiCardTotalPowerUsers) {
+        kpiCardTotalPowerUsers.addEventListener('click', () => {
+            activeFilter = 'all';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+    if (kpiCardAvgConviction) {
+        kpiCardAvgConviction.addEventListener('click', () => {
+            activeFilter = 'conviction-above-avg';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+    if (kpiCardAvgValueGap) {
+        kpiCardAvgValueGap.addEventListener('click', () => {
+            activeFilter = 'value-gap-above-avg';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+    if (kpiCardTopMissingFeature) {
+        kpiCardTopMissingFeature.addEventListener('click', () => {
+            activeFilter = 'top-gap-feature';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+    if (kpiCardAvgProbability && powerUsersTbody) {
+        kpiCardAvgProbability.addEventListener('click', () => {
+            activeFilter = 'probability-above-avg';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+
+    // --- SIDEBAR NAVIGATION INTERACTIVITY ---
+    const sidebarRenewalRisk = document.getElementById('sidebarRenewalRisk');
+    const sidebarDailyRitual = document.getElementById('sidebarDailyRitual');
+    const sidebarConsistent = document.getElementById('sidebarConsistent');
+    const sidebarOccasional = document.getElementById('sidebarOccasional');
+
+    if (sidebarRenewalRisk) {
+        sidebarRenewalRisk.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (tbody) { // on triggers page
+                activeFilter = 'risk';
+                syncFilterPillsUI();
+                renderTable();
+            } else { // on power users page, redirect to triggers with filter param
+                window.location.href = 'index.html?filter=risk';
+            }
+        });
+    }
+
+    if (sidebarDailyRitual) {
+        sidebarDailyRitual.addEventListener('click', (e) => {
+            e.preventDefault();
+            activeFilter = 'cohort-daily';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+
+    if (sidebarConsistent) {
+        sidebarConsistent.addEventListener('click', (e) => {
+            e.preventDefault();
+            activeFilter = 'cohort-consistent';
+            syncFilterPillsUI();
+            renderTable();
+        });
+    }
+
+    if (sidebarOccasional) {
+        sidebarOccasional.addEventListener('click', (e) => {
+            e.preventDefault();
+            activeFilter = 'cohort-occasional';
+            syncFilterPillsUI();
             renderTable();
         });
     }
@@ -725,18 +977,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load recent events dynamically from database
     async function loadRecentEvents() {
         try {
-            const response = await fetch('/api/recent-events');
+            let url = '/api/recent-events';
+            const params = [];
+            if (triggerDateFromVal) params.push(`start_date=${triggerDateFromVal}`);
+            if (triggerDateToVal) params.push(`end_date=${triggerDateToVal}`);
+            if (params.length > 0) {
+                url += '?' + params.join('&');
+            }
+
+            const response = await fetch(url);
             const data = await response.json();
             
-            if (data.status === 'success' && data.data && data.data.length > 0) {
+            if (data.status === 'success' && data.data) {
+                recentEventsList = data.data; // Store full list for export
                 eventStreamContainer.innerHTML = '';
-                const mappedEvents = data.data.map(evt => mapDatabaseEvent(evt));
                 
-                // Show up to 12 most recent events
-                mappedEvents.slice(0, 12).forEach(evt => {
-                    eventStreamContainer.appendChild(renderEventCard(evt));
-                });
+                if (recentEventsList.length > 0) {
+                    // Show up to 50 when filtered, or 12 for live stream
+                    const limit = (triggerDateFromVal || triggerDateToVal) ? 50 : 12;
+                    const mappedEvents = recentEventsList.map(evt => mapDatabaseEvent(evt));
+                    
+                    mappedEvents.slice(0, limit).forEach(evt => {
+                        eventStreamContainer.appendChild(renderEventCard(evt));
+                    });
+                } else {
+                    eventStreamContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.8rem;">No events match the selected dates.</div>';
+                }
+
+                if (triggersSubtitle) {
+                    if (triggerDateFromVal || triggerDateToVal) {
+                        triggersSubtitle.innerHTML = 'Filtered stream &bull; auto-refreshing';
+                    } else {
+                        triggersSubtitle.innerHTML = 'Stream from instrumentation layer &bull; auto-refreshing';
+                    }
+                }
             } else {
+                recentEventsList = [];
                 eventStreamContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.8rem;">No recent events recorded.</div>';
             }
         } catch (error) {
@@ -745,7 +1021,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Live Triggers Date Filtering Event Listeners
+    if (triggerDateApplyBtn) {
+        triggerDateApplyBtn.addEventListener('click', () => {
+            triggerDateFromVal = triggerDateFrom ? triggerDateFrom.value : null;
+            triggerDateToVal = triggerDateTo ? triggerDateTo.value : null;
+            loadRecentEvents();
+        });
+    }
+
+    if (triggerDateClearBtn) {
+        triggerDateClearBtn.addEventListener('click', () => {
+            if (triggerDateFrom) triggerDateFrom.value = '';
+            if (triggerDateTo) triggerDateTo.value = '';
+            triggerDateFromVal = null;
+            triggerDateToVal = null;
+            loadRecentEvents();
+        });
+    }
+
+    // Live Triggers Excel Export Function
+    function handleTriggersExcelExport() {
+        if (typeof XLSX === 'undefined') {
+            alert("Excel export library is still loading. Please try again in a moment.");
+            return;
+        }
+
+        if (!recentEventsList || recentEventsList.length === 0) {
+            alert("No event data available to export.");
+            return;
+        }
+
+        const filename = 'neotrader_live_triggers.xlsx';
+        
+        // Map data to user-friendly column names
+        const exportRows = recentEventsList.map(evt => {
+            const dateStr = evt.timestamp ? new Date(evt.timestamp).toLocaleString() : 'N/A';
+            return {
+                "Timestamp": dateStr,
+                "User ID / Email": evt.user_id || 'anonymous',
+                "Source": evt.source ? evt.source.toUpperCase() : 'UNKNOWN',
+                "Event Name / Endpoint": evt.endpoint || '',
+                "HTTP Method": evt.method || '',
+                "Status Code": evt.status_code || '',
+                "Notes / Details": evt.notes || '',
+                "HTML Element ID": evt.element_id || '',
+                "Auth Tag (A)": evt.category_a ? 'Yes' : 'No',
+                "Intent Tag (B)": evt.category_b ? 'Yes' : 'No',
+                "Alert Tag (C)": evt.category_c ? 'Yes' : 'No'
+            };
+        });
+
+        // Use SheetJS to write binary XLSX
+        const worksheet = XLSX.utils.json_to_sheet(exportRows);
+        
+        // Adjust column widths automatically for clean styling
+        const colWidths = Object.keys(exportRows[0] || {}).map(key => {
+            let maxLen = key.length;
+            exportRows.forEach(row => {
+                const val = String(row[key] || '');
+                if (val.length > maxLen) maxLen = val.length;
+            });
+            return { wch: maxLen + 2 };
+        });
+        worksheet['!cols'] = colWidths;
+        
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Live Triggers");
+        XLSX.writeFile(workbook, filename);
+    }
+
+    if (exportTriggersExcelBtn) {
+        exportTriggersExcelBtn.addEventListener('click', handleTriggersExcelExport);
+    }
+
     // Init
+    syncFilterPillsUI();
     loadLeads().then(() => {
         loadRecentEvents();
     });

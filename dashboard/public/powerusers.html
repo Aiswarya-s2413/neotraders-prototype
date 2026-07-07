@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.1">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -237,9 +237,32 @@
 
         <!-- 3. RIGHT PANEL: LIVE TRIGGERS -->
         <aside class="right-panel glass-panel animate-fade-in-right">
-            <div class="right-panel-header">
-                <h3>Live triggers</h3>
-                <span class="panel-subtitle">Stream from instrumentation layer &bull; auto-refreshing</span>
+            <div class="right-panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3>Live triggers</h3>
+                    <span class="panel-subtitle" id="triggersSubtitle">Stream from instrumentation layer &bull; auto-refreshing</span>
+                </div>
+                <button class="action-btn-circle btn-excel" id="exportTriggersExcelBtn" title="Export Triggers to Excel" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #10b981; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; transition: all 0.2s ease;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </button>
+            </div>
+
+            <!-- Date Filter for Live Triggers -->
+            <div class="trigger-date-filter" style="padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.6rem; background: rgba(255, 255, 255, 0.01);">
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <div style="display: flex; flex-direction: column; flex: 1;">
+                        <label for="triggerDateFrom" style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 3px; letter-spacing: 0.05em;">From</label>
+                        <input type="date" id="triggerDateFrom" class="date-filter-input" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: 100%; border-radius: 6px; background: rgba(255,255,255,0.05);">
+                    </div>
+                    <div style="display: flex; flex-direction: column; flex: 1;">
+                        <label for="triggerDateTo" style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 3px; letter-spacing: 0.05em;">To</label>
+                        <input type="date" id="triggerDateTo" class="date-filter-input" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: 100%; border-radius: 6px; background: rgba(255,255,255,0.05);">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                    <button class="date-clear-btn" id="triggerDateClearBtn" style="padding: 0.25rem 0.6rem; font-size: 0.72rem; border-radius: 6px;">Clear</button>
+                    <button class="date-apply-btn" id="triggerDateApplyBtn" style="padding: 0.25rem 0.6rem; font-size: 0.72rem; background: #10b981; border-radius: 6px;">Apply</button>
+                </div>
             </div>
             
             <!-- Event Stream List Container -->
@@ -262,6 +285,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=1.1"></script>
 </body>
 </html>

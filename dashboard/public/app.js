@@ -883,7 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title = `[${prefix}] ${endpoint}${notesText}`;
             
             if (evt.category_c) {
-                type = 'renewal';   // Alert → Renewal Risk
+                type = 'combo';     // Alert/Deep Engagement → High-Value Combo
             } else if (evt.category_b) {
                 type = 'upgrade';   // Intent → Upgrade Ready
             } else if (evt.category_a) {

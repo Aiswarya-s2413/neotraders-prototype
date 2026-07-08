@@ -951,6 +951,16 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
     function renderEventCard(evt) {
         const card = document.createElement('div');
         card.className = 'event-card';
@@ -959,8 +969,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="event-badge badge-${evt.type}">${getBadgeText(evt.type)}</span>
                 <span class="event-time">${evt.time}</span>
             </div>
-            <span class="event-desc">${evt.title}</span>
-            <span class="event-user-detail">${evt.user} &bull; ${evt.plan}</span>
+            <span class="event-desc">${escapeHtml(evt.title)}</span>
+            <span class="event-user-detail">${escapeHtml(evt.user)} &bull; ${escapeHtml(evt.plan)}</span>
         `;
         return card;
     }

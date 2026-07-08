@@ -937,9 +937,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (evt.category_b) activeCats.push('Intent');
             if (evt.category_c) activeCats.push('Alert');
             detailText = activeCats.length > 0 ? `Tags: ${activeCats.join(', ')}` : 'No tags';
-            if (evt.element_id) {
-                detailText += ` | Element: ${evt.element_id}`;
-            }
         }
         
         return {

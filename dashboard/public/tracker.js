@@ -109,9 +109,20 @@ window.Tracker = {
                             categories = { category_c: true }; // Deep Engagement Toggle
                         }
 
+                        // Extract human-readable text name of the clicked button/element
+                        let elementName = (target.textContent || target.value || '').trim();
+                        elementName = elementName.replace(/\s+/g, ' '); // Collapse extra spacing
+                        if (elementName.length > 50) {
+                            elementName = elementName.substring(0, 47) + '...';
+                        }
+                        if (!elementName) {
+                            // Fallback to title, label, or tag name if text is empty
+                            elementName = target.getAttribute('title') || target.getAttribute('aria-label') || tagName;
+                        }
+
                         this.track(
                             'element_clicked',
-                            `Auto-tracked click on <${tagName}> with ID: "${elementId}"`,
+                            `Auto-tracked click on "${elementName}"`,
                             categories,
                             elementId
                         ).catch(() => {});

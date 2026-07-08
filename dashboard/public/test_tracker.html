@@ -80,13 +80,15 @@
                 universeEl.click();
                 
                 const clickUniverseEvent = loggedTrackEvents.find(e => e.elementId === 'rt-universe-dropdown');
-                const universePassed = clickUniverseEvent && clickUniverseEvent.categories.category_b === true && !clickUniverseEvent.categories.category_c;
+                const universePassed = clickUniverseEvent && 
+                                       clickUniverseEvent.categories.category_b === true && 
+                                       clickUniverseEvent.notes === 'Auto-tracked click on "Universe Dropdown (NIFTY F&O)"';
                 
                 addReport(
-                    "Test 2: Universe Dropdown Click Mapping",
+                    "Test 2: Universe Dropdown Click Mapping & Text Capture",
                     universePassed,
                     universePassed
-                        ? `Universe dropdown click correctly categorized as category_b (Intent)`
+                        ? `Universe dropdown click correctly mapped and captured name: "${clickUniverseEvent.notes}"`
                         : `Failed: Click event details: ${JSON.stringify(clickUniverseEvent || {})}`
                 );
 
@@ -95,13 +97,15 @@
                 document.getElementById('mat-button-toggle-7-button').click();
 
                 const clickIndicatorEvent = loggedTrackEvents.find(e => e.elementId === 'mat-button-toggle-7-button');
-                const indicatorPassed = clickIndicatorEvent && clickIndicatorEvent.categories.category_c === true;
+                const indicatorPassed = clickIndicatorEvent && 
+                                        clickIndicatorEvent.categories.category_c === true && 
+                                        clickIndicatorEvent.notes === 'Auto-tracked click on "Camarilla Toggle Button"';
                 
                 addReport(
-                    "Test 3: Technical Indicator Deep-Engagement Mapping",
+                    "Test 3: Technical Indicator Deep-Engagement Mapping & Text Capture",
                     indicatorPassed,
                     indicatorPassed
-                        ? `Nested indicator click correctly mapped to category_c (Deep Engagement/Alert) via parent rt-indicator-group`
+                        ? `Nested indicator click correctly mapped to category_c and captured name: "${clickIndicatorEvent.notes}"`
                         : `Failed: Click event details: ${JSON.stringify(clickIndicatorEvent || {})}`
                 );
 

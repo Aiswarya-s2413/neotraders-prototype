@@ -92,8 +92,20 @@ window.Tracker = {
                     
                     if (isInteractive) {
                         let categories = { category_b: true };
-                        // Check if the clicked element represents a technical indicator / toggle
-                        if (elementId === 'rt-indicator-group' || elementId.includes('indicator')) {
+                        // Check if the clicked element or any of its parents represent indicator groups
+                        let isIndicator = elementId === 'rt-indicator-group' || elementId.includes('indicator');
+                        if (!isIndicator) {
+                            let parent = target.parentNode;
+                            while (parent && parent !== document) {
+                                if (parent.id && (parent.id === 'rt-indicator-group' || parent.id.includes('indicator'))) {
+                                    isIndicator = true;
+                                    break;
+                                }
+                                parent = parent.parentNode;
+                            }
+                        }
+
+                        if (isIndicator) {
                             categories = { category_c: true }; // Deep Engagement Toggle
                         }
 

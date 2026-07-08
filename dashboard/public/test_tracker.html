@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tracker.js Integration Test Runner</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #0f172a; color: #f8fafc; padding: 2rem; }
+        .test-card { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid #334155; }
+        .success { color: #4ade80; font-weight: bold; }
+        .failed { color: #f87171; font-weight: bold; }
+        .mock-box { display: inline-block; padding: 8px 12px; background: #0ea5e9; border-radius: 4px; margin-right: 10px; cursor: pointer; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Tracker.js Integration Test Suite</h1>
+    <p>Running automated script verification for NeoTraders Beta elements...</p>
+
+    <!-- Mock NeoTraders DOM Elements -->
+    <div class="test-card">
+        <h3>Mock DOM Elements (NeoTraders Layout)</h3>
+        <div style="margin-bottom: 10px;">
+            <strong>Logged In User:</strong>
+            <span id="logged-in-email" style="font-weight: bold; color: #f472b6;">test-user-beta@neotrader.in</span>
+        </div>
+        <div>
+            <div id="rt-universe-dropdown" class="mock-box">Universe Dropdown (NIFTY F&O)</div>
+            <div id="rt-indicator-group" style="display: inline-block;">
+                <button id="mat-button-toggle-7-button" class="mock-box">Camarilla Toggle Button</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Report Container -->
+    <div class="test-card">
+        <h3>Test Executions & Verification Results</h3>
+        <ul id="testResults"></ul>
+    </div>
+
+    <!-- Load tracker.js -->
+    <script src="tracker.js"></script>
+
+    <!-- Test Runner Script -->
+    <script>
+        const resultsEl = document.getElementById('testResults');
+        const loggedInEmailEl = document.getElementById('logged-in-email');
+        const universeEl = document.getElementById('rt-universe-dropdown');
+        const indicatorEl = document.getElementById('rt-indicator-group');
+
+        function addReport(testName, passed, details) {
+            const li = document.createElement('li');
+            li.style.marginBottom = '8px';
+            li.innerHTML = `<strong>${testName}</strong>: <span class="${passed ? 'success' : 'failed'}">${passed ? 'PASSED' : 'FAILED'}</span><br><small style="color: #94a3b8;">${details}</small>`;
+            resultsEl.appendChild(li);
+        }
+
+        // Run tests once DOM loaded and tracker initialized
+        setTimeout(() => {
+            try {
+                // TEST 1: Auto-detection of #logged-in-email
+                const detectedEmail = window.Tracker.email;
+                const emailPassed = (detectedEmail === 'test-user-beta@neotrader.in');
+                addReport(
+                    "Test 1: User Email Auto-Detection",
+                    emailPassed,
+                    emailPassed 
+                        ? `Successfully detected: "${detectedEmail}" using selector "#logged-in-email"`
+                        : `Failed to detect email. Tracker email is currently: "${detectedEmail}"`
+                );
+
+                // TEST 2: Click on rt-universe-dropdown (should trigger category_b: true)
+                let loggedTrackEvents = [];
+                const originalTrack = window.Tracker.track;
+                
+                // Monkey patch track to capture inputs
+                window.Tracker.track = function(eventName, notes, categories, elementId) {
+                    loggedTrackEvents.push({ eventName, notes, categories, elementId });
+                    return Promise.resolve({ status: 'success' });
+                };
+
+                // Simulate click on universe dropdown
+                universeEl.click();
+                
+                const clickUniverseEvent = loggedTrackEvents.find(e => e.elementId === 'rt-universe-dropdown');
+                const universePassed = clickUniverseEvent && clickUniverseEvent.categories.category_b === true && !clickUniverseEvent.categories.category_c;
+                
+                addReport(
+                    "Test 2: Universe Dropdown Click Mapping",
+                    universePassed,
+                    universePassed
+                        ? `Universe dropdown click correctly categorized as category_b (Intent)`
+                        : `Failed: Click event details: ${JSON.stringify(clickUniverseEvent || {})}`
+                );
+
+                // TEST 3: Click on nested button inside rt-indicator-group (should trigger category_c: true)
+                loggedTrackEvents = [];
+                document.getElementById('mat-button-toggle-7-button').click();
+
+                const clickIndicatorEvent = loggedTrackEvents.find(e => e.elementId === 'mat-button-toggle-7-button');
+                const indicatorPassed = clickIndicatorEvent && clickIndicatorEvent.categories.category_c === true;
+                
+                addReport(
+                    "Test 3: Technical Indicator Deep-Engagement Mapping",
+                    indicatorPassed,
+                    indicatorPassed
+                        ? `Nested indicator click correctly mapped to category_c (Deep Engagement/Alert) via parent rt-indicator-group`
+                        : `Failed: Click event details: ${JSON.stringify(clickIndicatorEvent || {})}`
+                );
+
+            } catch (err) {
+                addReport("Test Execution Error", false, err.stack);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

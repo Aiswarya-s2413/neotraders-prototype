@@ -209,8 +209,8 @@ window.Tracker = {
         
         for (const selector of selectors) {
             const el = document.querySelector(selector);
-            if (el && el.textContent) {
-                const text = el.textContent.trim();
+            if (el) {
+                const text = (el.textContent || el.value || '').trim();
                 if (text && text.includes('@')) {
                     this.init(text);
                     console.log('Tracker auto-detected user from DOM (' + selector + '):', text);

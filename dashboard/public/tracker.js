@@ -91,10 +91,16 @@ window.Tracker = {
                     const isInteractive = interactiveTags.includes(tagName) || hasRoleButton || (window.getComputedStyle && window.getComputedStyle(target).cursor === 'pointer');
                     
                     if (isInteractive) {
+                        let categories = { category_b: true };
+                        // Check if the clicked element represents a technical indicator / toggle
+                        if (elementId === 'rt-indicator-group' || elementId.includes('indicator')) {
+                            categories = { category_c: true }; // Deep Engagement Toggle
+                        }
+
                         this.track(
                             'element_clicked',
                             `Auto-tracked click on <${tagName}> with ID: "${elementId}"`,
-                            { category_b: true },
+                            categories,
                             elementId
                         ).catch(() => {});
                         break;
@@ -191,6 +197,7 @@ window.Tracker = {
 
         // 2. Try to read from standard DOM element selectors (like the display ID they provide)
         const selectors = [
+            '#logged-in-email',
             '#user-email-display',
             '.user-email-display',
             '#username',

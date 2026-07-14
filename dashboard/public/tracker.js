@@ -72,6 +72,40 @@ window.Tracker = {
         if (this._autoTrackingSetup) return;
         this._autoTrackingSetup = true;
 
+        const ALLOWED_TRACKING_IDS = [
+            // Rolling Ticker
+            'rt-page',
+            'rt-universe-dropdown',
+            'rt-signal-group',
+            'rt-direction-group',
+            'rt-indicator-group',
+            'rt-multi-signal-btn',
+            'rt-search-box',
+            'rt-stock-row',
+            'rt-tradingview-chart',
+
+            // Analyzer
+            'pro-an-page',
+            'pro-an-segment-toggle',
+            'pro-an-analysis-tabs',
+            'pro-an-chart-icon',
+            'pro-an-indicator-trend-toggle',
+            'pro-an-indicator-row',
+            'pro-an-tradingview-chart',
+            'pro-an-top-strike-expiry',
+            'pro-an-top-strike-callput',
+            'pro-an-strike-sr-expiry',
+            'pro-an-pcr-expiry',
+            'pro-an-pcr-timeframe',
+            'pro-an-oi-search',
+            'pro-an-oi-expiry',
+            'pro-an-oi-narration',
+            'pro-an-oi-row',
+            'pro-an-oi-dialog-close',
+            'pro-an-optchain-search',
+            'pro-an-optchain-expiry'
+        ];
+
         console.log('Tracker auto-tracking active: capturing clicks on elements with an "id" attribute.');
         document.addEventListener('click', (event) => {
             // Fallback: dynamic detection on click in case email element loaded later
@@ -91,6 +125,23 @@ window.Tracker = {
                     const isInteractive = interactiveTags.includes(tagName) || hasRoleButton || (window.getComputedStyle && window.getComputedStyle(target).cursor === 'pointer');
                     
                     if (isInteractive) {
+                        // Whitelist validation: Check if this element or any parent matches the allowed telemetry tracking IDs
+                        let isAllowed = false;
+                        let temp = target;
+                        while (temp && temp !== document) {
+                            if (temp.id && ALLOWED_TRACKING_IDS.includes(temp.id)) {
+                                isAllowed = true;
+                                break;
+                            }
+                            temp = temp.parentNode;
+                        }
+
+                        if (!isAllowed) {
+                            // Not in whitelist, skip tracking and let target climb up to parents
+                            target = target.parentNode;
+                            continue;
+                        }
+
                         let categories = { category_b: true };
                         // Check if the clicked element or any of its parents represent indicator groups
                         let isIndicator = elementId === 'rt-indicator-group' || elementId.includes('indicator');

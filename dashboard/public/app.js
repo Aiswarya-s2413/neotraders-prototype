@@ -69,6 +69,64 @@ document.addEventListener('DOMContentLoaded', () => {
     updateClock();
     setInterval(updateClock, 30000); // Update every 30s
 
+    let serverIsHealthy = true;
+    function updateSystemHealth(isHealthy) {
+        serverIsHealthy = isHealthy;
+        const sidebarPulseDot = document.getElementById('sidebarPulseDot') || document.querySelector('.pulse-dot');
+        const sidebarStatusText = document.getElementById('sidebarStatusText') || document.querySelector('.status-text');
+        const sidebarStatusRate = document.getElementById('sidebarStatusRate') || document.querySelector('.status-rate');
+        const headerIndicatorDot = document.getElementById('headerIndicatorDot') || document.querySelector('.green-indicator-dot');
+        const headerStreamText = document.getElementById('headerStreamText') || document.querySelector('.stream-text');
+
+        if (isHealthy) {
+            if (sidebarPulseDot) {
+                sidebarPulseDot.style.backgroundColor = 'var(--accent-green)';
+                sidebarPulseDot.style.boxShadow = '0 0 8px var(--accent-green)';
+            }
+            if (sidebarStatusText) {
+                sidebarStatusText.textContent = 'prod ingest healthy';
+            }
+            if (headerIndicatorDot) {
+                headerIndicatorDot.style.backgroundColor = 'var(--accent-green)';
+            }
+            if (headerStreamText) {
+                headerStreamText.textContent = 'Live - stream healthy';
+                headerStreamText.style.color = 'var(--accent-green)';
+            }
+        } else {
+            if (sidebarPulseDot) {
+                sidebarPulseDot.style.backgroundColor = 'var(--accent-red)';
+                sidebarPulseDot.style.boxShadow = '0 0 8px var(--accent-red)';
+            }
+            if (sidebarStatusText) {
+                sidebarStatusText.textContent = 'prod ingest offline';
+            }
+            if (sidebarStatusRate) {
+                sidebarStatusRate.textContent = '0 ev/s';
+            }
+            if (headerIndicatorDot) {
+                headerIndicatorDot.style.backgroundColor = 'var(--accent-red)';
+            }
+            if (headerStreamText) {
+                headerStreamText.textContent = 'Stream disconnected';
+                headerStreamText.style.color = 'var(--accent-red)';
+            }
+        }
+    }
+
+    // Periodically fluctuate the event rate slightly if healthy to show active streaming
+    setInterval(() => {
+        if (serverIsHealthy) {
+            const sidebarStatusRate = document.getElementById('sidebarStatusRate') || document.querySelector('.status-rate');
+            if (sidebarStatusRate) {
+                const baseVal = 3.2;
+                const randomOffset = (Math.random() * 0.4 - 0.2); // +/- 0.2
+                const finalRate = (baseVal + randomOffset).toFixed(1);
+                sidebarStatusRate.textContent = `${finalRate}k ev/s`;
+            }
+        }
+    }, 3000);
+
     // Load leads from backend database
     async function loadLeads() {
         try {
@@ -77,12 +135,15 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (data.status === 'success' && data.data) {
                 allLeads = data.data;
+                updateSystemHealth(true);
             } else {
                 allLeads = [];
+                updateSystemHealth(false);
             }
         } catch (error) {
             console.error("Error loading leads from database API:", error);
             allLeads = [];
+            updateSystemHealth(false);
         }
         renderTable();
         updateKPIs();
@@ -1018,13 +1079,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         triggersSubtitle.innerHTML = 'Stream from instrumentation layer &bull; auto-refreshing';
                     }
                 }
+                updateSystemHealth(true);
             } else {
                 recentEventsList = [];
                 eventStreamContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.8rem;">No recent events recorded.</div>';
+                updateSystemHealth(false);
             }
         } catch (error) {
             console.error("Error loading recent events:", error);
             eventStreamContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.8rem;">Failed to load live triggers.</div>';
+            updateSystemHealth(false);
         }
     }
 

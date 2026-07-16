@@ -977,7 +977,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Calculate elapsed time from ISO timestamp
         let timeStr = 'just now';
         if (evt.timestamp) {
-            const diffMs = new Date() - new Date(evt.timestamp);
+            const dateObj = new Date(evt.timestamp);
+            const diffMs = new Date() - dateObj;
             const diffMins = Math.floor(diffMs / 60000);
             if (diffMins < 1) {
                 timeStr = 'just now';
@@ -991,6 +992,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     const diffDays = Math.floor(diffHours / 24);
                     timeStr = `${diffDays}d ago`;
                 }
+            }
+
+            // Format to a readable date and time in IST
+            const options = { 
+                day: '2-digit', 
+                month: 'short', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: false,
+                timeZone: 'Asia/Kolkata' 
+            };
+            try {
+                const formattedDateTime = new Intl.DateTimeFormat('en-US', options).format(dateObj);
+                timeStr = `${timeStr} • ${formattedDateTime}`;
+            } catch (e) {
+                // Fallback if formatting fails
             }
         }
         

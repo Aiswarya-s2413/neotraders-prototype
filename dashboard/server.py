@@ -203,6 +203,7 @@ def get_recent_events(start_date: Optional[str] = None, end_date: Optional[str] 
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         api_where_clauses = []
+        tracker_where_clauses = []
         prototype_where_clauses = []
         sql_params = []
         
@@ -211,6 +212,12 @@ def get_recent_events(start_date: Optional[str] = None, end_date: Optional[str] 
             api_where_clauses.append("timestamp >= %s")
         if end_date:
             api_where_clauses.append("timestamp <= %s")
+            
+        # Build Tracker conditions
+        if start_date:
+            tracker_where_clauses.append("created_at >= %s")
+        if end_date:
+            tracker_where_clauses.append("created_at <= %s")
             
         # Build Prototype conditions
         if start_date:
@@ -225,13 +232,20 @@ def get_recent_events(start_date: Optional[str] = None, end_date: Optional[str] 
         if end_date:
             sql_params.append(end_date + " 23:59:59")
             
-        # Branch 2: captured_events
+        # Branch 2: js_tracked_events
+        if start_date:
+            sql_params.append(start_date)
+        if end_date:
+            sql_params.append(end_date + " 23:59:59")
+            
+        # Branch 3: captured_events
         if start_date:
             sql_params.append(start_date)
         if end_date:
             sql_params.append(end_date + " 23:59:59")
             
         api_where = "WHERE " + " AND ".join(api_where_clauses) if api_where_clauses else ""
+        tracker_where = "WHERE " + " AND ".join(tracker_where_clauses) if tracker_where_clauses else ""
         prototype_where = "WHERE " + " AND ".join(prototype_where_clauses) if prototype_where_clauses else ""
         
         query = f"""
@@ -239,6 +253,11 @@ def get_recent_events(start_date: Optional[str] = None, end_date: Optional[str] 
                    FALSE AS category_a, FALSE AS category_b, FALSE AS category_c, NULL AS notes, timestamp, NULL AS element_id
             FROM api_usage_events
             {api_where}
+            UNION ALL
+            SELECT 'tracker' AS source, COALESCE(user_email, 'anonymous') AS user_id, name AS endpoint, 'POST' AS method, '200'::text AS status_code, 
+                   category_a, category_b, category_c, notes, created_at AS timestamp, element_id
+            FROM js_tracked_events
+            {tracker_where}
             UNION ALL
             SELECT 'prototype' AS source, COALESCE(user_email, 'anonymous') AS user_id, name AS endpoint, 'POST' AS method, '200'::text AS status_code, 
                    category_a, category_b, category_c, notes, created_at AS timestamp, element_id

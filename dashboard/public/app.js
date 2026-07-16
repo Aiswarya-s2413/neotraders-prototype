@@ -880,12 +880,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let title = `Accessed endpoint ${endpoint}`;
         
         if (source === 'tracker' || source === 'prototype') {
+            const prefix = source === 'tracker' ? 'Tracker' : 'Prototype';
             const notesText = evt.notes ? `: ${evt.notes}` : '';
-            if (source === 'tracker') {
-                title = `${endpoint}${notesText}`;
-            } else {
-                title = `[Prototype] ${endpoint}${notesText}`;
-            }
+            title = `[${prefix}] ${endpoint}${notesText}`;
             
             if (evt.category_c) {
                 type = 'combo';     // Alert/Deep Engagement → High-Value Combo

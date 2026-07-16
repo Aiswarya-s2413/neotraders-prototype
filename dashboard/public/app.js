@@ -1024,7 +1024,6 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = 'event-card';
         card.innerHTML = `
             <div class="event-header-row">
-                <span class="event-badge badge-${evt.type}">${getBadgeText(evt.type)}</span>
                 <span class="event-time">${evt.time}</span>
             </div>
             <span class="event-desc">${escapeHtml(evt.title)}</span>

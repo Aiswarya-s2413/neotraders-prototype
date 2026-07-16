@@ -816,65 +816,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function handleExcelExport() {
-        if (typeof XLSX === 'undefined') {
-            alert("Excel export library is still loading. Please try again in a moment.");
-            return;
-        }
-
-        if (!currentFilteredData || currentFilteredData.length === 0) {
-            alert("No data available to export.");
-            return;
-        }
-
-        const isPowerUsersPage = !!powerUsersTbody;
-        const filename = isPowerUsersPage ? 'neotrader_power_users.xlsx' : 'neotrader_sales_triggers.xlsx';
-        
-        // Map data to user-friendly column names
-        const exportRows = currentFilteredData.map(lead => {
-            const row = {
-                "User ID": lead.user_id,
-                "Conversion Probability (%)": lead.conversion_probability || 0,
-                "Reason to Call": lead.trigger_reason || "Routine Check-in",
-                "Missing Key Feature": lead.missing_key_feature || "N/A",
-                "Conviction Score": Math.round(parseFloat(lead.high_conviction_score || 0)),
-                "Evaluation Score": Math.round(parseFloat(lead.evaluation_score || 0)),
-                "Friction Score": Math.round(parseFloat(lead.friction_score || 0))
-            };
-            
-            if (isPowerUsersPage) {
-                row["Value Gap (%)"] = Math.round(parseFloat(lead.value_gap_percentage || 0));
-                row["Habit Classification"] = lead.habit_classification || "N/A";
-                row["Last Analyzed"] = lead.last_calculated_at ? new Date(lead.last_calculated_at).toLocaleString() : "N/A";
-            }
-            
-            return row;
-        });
-
-        // Use SheetJS to write binary XLSX
-        const worksheet = XLSX.utils.json_to_sheet(exportRows);
-        
-        // Adjust column widths automatically for clean styling
-        const colWidths = Object.keys(exportRows[0] || {}).map(key => {
-            let maxLen = key.length;
-            exportRows.forEach(row => {
-                const val = String(row[key] || '');
-                if (val.length > maxLen) maxLen = val.length;
-            });
-            return { wch: maxLen + 2 };
-        });
-        worksheet['!cols'] = colWidths;
-        
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, isPowerUsersPage ? "Power Users" : "Sales Triggers");
-        XLSX.writeFile(workbook, filename);
-    }
-
-    // Excel Export handler
-    const exportExcelBtn = document.getElementById('exportExcelBtn');
-    if (exportExcelBtn) {
-        exportExcelBtn.addEventListener('click', handleExcelExport);
-    }
 
     // Date preset pills handler (Power Users page)
     const datePresetsEl = document.getElementById('datePresets');

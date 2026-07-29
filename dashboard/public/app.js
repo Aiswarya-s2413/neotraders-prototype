@@ -485,6 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let filtered = allLeads;
 
         // Apply interactive filter logic
+        const activeCustomCohort = customCohorts.find(c => c.id === activeFilter);
         if (activeFilter.startsWith('feature_report_')) {
             const featKey = activeFilter.replace('feature_report_', '');
             filtered = allLeads.filter(l => getLeadFeatureUsageCount(l, featKey) > 0)

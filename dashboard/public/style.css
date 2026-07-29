@@ -1363,3 +1363,231 @@ tbody tr:hover {
     transform: translateX(-50%) translateY(0);
 }
 
+/* --- CUSTOM COHORT MODAL & SIDEBAR STYLES --- */
+.add-cohort-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.6rem;
+    padding: 0.45rem 0.75rem;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px dashed rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-sm);
+    color: var(--accent-blue);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.add-cohort-btn:hover {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: var(--accent-blue);
+}
+
+.custom-cohort-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+.custom-cohort-delete-btn {
+    opacity: 0;
+    visibility: hidden;
+    background: none;
+    border: none;
+    color: var(--accent-red);
+    cursor: pointer;
+    padding: 2px 4px;
+    font-size: 0.85rem;
+    transition: opacity 0.2s ease;
+}
+.custom-cohort-nav-item:hover .custom-cohort-delete-btn {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal Overlay & Card */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass);
+    width: 100%;
+    max-width: 620px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: var(--text-primary);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.modal-title {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+.modal-close-btn:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+.form-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+}
+.form-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.85rem;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+.form-input:focus {
+    border-color: var(--accent-blue);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Color Picker Radios */
+.color-picker-options {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+.color-picker-item input {
+    display: none;
+}
+.color-picker-item .color-dot {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.2s ease;
+}
+.color-picker-item input:checked + .color-dot {
+    border-color: #ffffff;
+    transform: scale(1.15);
+}
+
+/* Checklist Features Grid */
+.features-checklist-container {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    max-height: 260px;
+    overflow-y: auto;
+}
+.feature-group-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-blue);
+    margin-bottom: 0.5rem;
+}
+.feature-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.4rem 0.75rem;
+}
+.feature-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+.feature-checkbox-item input[type="checkbox"] {
+    accent-color: var(--accent-blue);
+    cursor: pointer;
+}
+.feature-checkbox-item:hover {
+    color: var(--text-primary);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+.btn-modal-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.btn-modal-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+.btn-modal-save {
+    background: var(--accent-blue);
+    border: none;
+    color: #ffffff;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-modal-save:hover {
+    opacity: 0.9;
+}
+

@@ -1638,10 +1638,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             });
 
-            const totalEventsCount = Math.round(totalUsageScore * 1.5);
+            const convScore = parseFloat(leadData.high_conviction_score || 50) || 50;
+            const evalScore = parseFloat(leadData.evaluation_score || 20) || 20;
+            const emailSeed = charCodeSum % 89;
+            const totalEventsCount = Math.max(18, Math.round(convScore * 2.4 + evalScore * 1.8 + emailSeed + 12));
+
             return { svgCircles, legendHtml, totalEventsCount };
         } catch (err) {
             console.error("Error generating user feature donut:", err);
+            const convScore = parseFloat(leadData.high_conviction_score || 50) || 50;
+            const emailSeed = charCodeSum % 89;
+            const totalEventsCount = Math.max(18, Math.round(convScore * 2.4 + emailSeed + 12));
+
             const fallbackCircles = `
                 <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#3b82f6" stroke-width="4.5" stroke-dasharray="34 66" stroke-dashoffset="25"></circle>
                 <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#10b981" stroke-width="4.5" stroke-dasharray="28 72" stroke-dashoffset="-9"></circle>
@@ -1654,7 +1662,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.73rem;"><div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; flex-shrink: 0;"></span><span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Pivots - Fibonacci</span></div><span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">22%</span></div>
                 <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.73rem;"><div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0;"></span><span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Analyzer - USP</span></div><span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">16%</span></div>
             `;
-            return { svgCircles: fallbackCircles, legendHtml: fallbackLegend, totalEventsCount: 142 };
+            return { svgCircles: fallbackCircles, legendHtml: fallbackLegend, totalEventsCount };
         }
     }
 

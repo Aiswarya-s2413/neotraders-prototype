@@ -1673,15 +1673,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let customer = null;
         try {
-            const response = await fetch(`/api/customers/${encodeURIComponent(userId)}`);
-            if (response.ok) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1200);
+
+            const response = await fetch(`/api/customers/${encodeURIComponent(userId)}`, {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (response && response.ok) {
                 const resData = await response.json();
                 if (resData && resData.status === 'success' && resData.data) {
                     customer = resData.data;
                 }
             }
         } catch (err) {
-            console.warn("Could not fetch customer details from API, using fallback profile:", err);
+            console.warn("Could not fetch customer details from API within 1.2s, using fallback profile:", err);
         }
 
         if (!customer) {

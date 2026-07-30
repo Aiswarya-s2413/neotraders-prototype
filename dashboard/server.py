@@ -343,33 +343,6 @@ def resolve_email(user_id: str) -> str:
     """Helper to resolve a customer email address from a user_id."""
     if "@" in user_id:
         return user_id
-        
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        # Check captured_events
-        cursor.execute("SELECT DISTINCT user_email FROM captured_events WHERE user_email IS NOT NULL AND user_email LIKE %s LIMIT 1;", (f"%{user_id}%",))
-        row = cursor.fetchone()
-        if row:
-            cursor.close()
-            conn.close()
-            return row[0]
-            
-        # Check js_tracked_events
-        cursor.execute("SELECT DISTINCT user_email FROM js_tracked_events WHERE user_email IS NOT NULL AND user_email LIKE %s LIMIT 1;", (f"%{user_id}%",))
-        row = cursor.fetchone()
-        if row:
-            cursor.close()
-            conn.close()
-            return row[0]
-            
-        cursor.close()
-        conn.close()
-    except Exception as e:
-        print(f"Error mapping user_id to email: {e}")
-        
-    # Standard mapping fallback for local mock users
     if user_id.startswith("user_"):
         return f"{user_id}@neotraders.com"
     return f"{user_id}@example.com"
@@ -393,12 +366,12 @@ def get_customer_details(user_id_or_email: str):
             payload = json.dumps({"email": email}).encode("utf-8")
             req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
             
-            with urllib.request.urlopen(req, timeout=5) as response:
+            with urllib.request.urlopen(req, timeout=1.5) as response:
                 if response.status == 200:
                     result = json.loads(response.read().decode("utf-8"))
                     return JSONResponse({"status": "success", "data": result})
         except Exception as e:
-            print(f"Partner API request failed: {e}. Falling back to mock details.")
+            print(f"Partner API request failed/timed out: {e}. Falling back to mock details.")
             use_mock_fallback = True
             
     if use_mock_fallback:

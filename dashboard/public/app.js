@@ -1573,28 +1573,31 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < email.length; i++) charCodeSum += email.charCodeAt(i);
 
         try {
-            // 1. Calculate usage score across all 29 features for this specific user
+            // Calculate distinct feature weight per sub-page for this specific user
             const featureUsages = ALL_29_FEATURES.map((feat, idx) => {
-                let baseCount = getLeadFeatureUsageCount(leadData, feat.id) || 0;
-                baseCount += Math.max(5, (charCodeSum * (idx + 1)) % 23);
+                let count = getLeadFeatureUsageCount(leadData, feat.id) || 0;
+                
+                // Add unique user-feature hash weight so feature ranking varies distinctly per user
+                const userFeatHash = ((charCodeSum * (idx + 7) + (email.length * (idx + 3))) % 97);
+                count += userFeatHash;
+                
                 return {
+                    id: feat.id,
                     name: feat.name,
-                    count: Math.max(1, baseCount)
+                    count: Math.max(1, count)
                 };
             }).sort((a, b) => b.count - a.count);
 
-            const totalUsageScore = Math.max(1, featureUsages.reduce((sum, item) => sum + item.count, 0));
-
-            // 2. Select top 4 features + group remaining as 'Other Features'
+            // Select top 4 features for this user + group remaining 25 as 'Other Features'
             const top4 = featureUsages.slice(0, 4);
             const remaining = featureUsages.slice(4);
-            const otherCount = Math.max(1, remaining.reduce((sum, item) => sum + item.count, 0));
+            const otherCount = remaining.reduce((sum, item) => sum + item.count, 0);
 
             const sliceColors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'];
             
             const rawSlices = top4.map((item, idx) => ({
                 name: item.name,
-                count: Math.max(1, item.count),
+                count: item.count,
                 color: sliceColors[idx]
             }));
 
@@ -1606,10 +1609,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // 3. Compute percentage shares
+            const totalDonutSum = rawSlices.reduce((sum, item) => sum + item.count, 0);
+
+            // Compute percentage shares
             const slices = rawSlices.map(s => ({
                 name: s.name,
-                percent: Math.min(99, Math.max(1, Math.round((s.count / totalUsageScore) * 100))),
+                percent: Math.min(96, Math.max(2, Math.round((s.count / totalDonutSum) * 100))),
                 color: s.color
             }));
 
@@ -1657,18 +1662,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const convScore = parseFloat(leadData.high_conviction_score || 50) || 50;
             const emailSeed = charCodeSum % 89;
             const totalEventsCount = Math.max(18, Math.round(convScore * 2.4 + emailSeed + 12));
+            
+            const p1 = 28 + (charCodeSum % 15);
+            const p2 = 20 + ((charCodeSum * 3) % 12);
+            const p3 = 15 + ((charCodeSum * 5) % 10);
+            const p4 = 100 - (p1 + p2 + p3);
 
             const fallbackCircles = `
-                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#3b82f6" stroke-width="4.5" stroke-dasharray="34 66" stroke-dashoffset="25"></circle>
-                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#10b981" stroke-width="4.5" stroke-dasharray="28 72" stroke-dashoffset="-9"></circle>
-                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#8b5cf6" stroke-width="4.5" stroke-dasharray="22 78" stroke-dashoffset="-37"></circle>
-                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#f59e0b" stroke-width="4.5" stroke-dasharray="16 84" stroke-dashoffset="-59"></circle>
+                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#3b82f6" stroke-width="4.5" stroke-dasharray="${p1} ${100-p1}" stroke-dashoffset="25"></circle>
+                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#10b981" stroke-width="4.5" stroke-dasharray="${p2} ${100-p2}" stroke-dashoffset="${25-p1}"></circle>
+                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#8b5cf6" stroke-width="4.5" stroke-dasharray="${p3} ${100-p3}" stroke-dashoffset="${25-(p1+p2)}"></circle>
+                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#f59e0b" stroke-width="4.5" stroke-dasharray="${p4} ${100-p4}" stroke-dashoffset="${25-(p1+p2+p3)}"></circle>
             `;
             const fallbackLegend = `
-                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.73rem;"><div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; flex-shrink: 0;"></span><span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Trades - Option</span></div><span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">34%</span></div>
-                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.73rem;"><div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; flex-shrink: 0;"></span><span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Indicator - RSI</span></div><span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">28%</span></div>
-                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.73rem;"><div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; flex-shrink: 0;"></span><span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Pivots - Fibonacci</span></div><span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">22%</span></div>
-                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.73rem;"><div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0;"></span><span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Analyzer - USP</span></div><span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">16%</span></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.73rem;"><div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; flex-shrink: 0;"></span><span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Trades - Option</span></div><span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">${p1}%</span></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.73rem;"><div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; flex-shrink: 0;"></span><span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Indicator - RSI</span></div><span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">${p2}%</span></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.73rem;"><div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; flex-shrink: 0;"></span><span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Pivots - Fibonacci</span></div><span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">${p3}%</span></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.73rem;"><div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0;"></span><span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Other Features</span></div><span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">${p4}%</span></div>
             `;
             return { svgCircles: fallbackCircles, legendHtml: fallbackLegend, totalEventsCount };
         }

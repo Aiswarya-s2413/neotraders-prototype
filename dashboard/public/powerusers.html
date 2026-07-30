@@ -308,19 +308,37 @@
                             </div>
                         </div>
 
-                        <div class="features-checklist-container">
+                        <div class="features-checklist-container" style="max-height: 260px; overflow-y: auto; padding-right: 4px;">
                             <div class="feature-checkbox-grid">
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="dashboard"><span>Dashboard</span></label>
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="rolling-ticker"><span>Rolling Ticker</span></label>
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="stock-analyzer"><span>Stock Analyzer</span></label>
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="adx-page"><span>ADX Page</span></label>
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="rsi-page"><span>RSI Page</span></label>
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="options-trades"><span>Options Trades</span></label>
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="multi-day-trades"><span>Multi-Day Trades</span></label>
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="positional-trades"><span>Positional Trades</span></label>
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="candlestick-pivots"><span>Candlestick & Pivots</span></label>
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="trades-console"><span>Trades Console</span></label>
-                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="subscription"><span>Subscription & Upgrades</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="dashboard-main"><span>Dashboard - Main Page</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="dashboard-options"><span>Dashboard - Options</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="rt-main"><span>Rolling Ticker - Main RT Page</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="trades-option"><span>Trades - Option</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="trades-futures"><span>Trades - Futures</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="trades-intraday"><span>Trades - Intraday</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="trades-multiday"><span>Trades - Multiday</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="trades-positional"><span>Trades - Positional</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="trades-investment"><span>Trades - Investment</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="trades-previous"><span>Trades - Previous Trades</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="pivots-fibonacci"><span>Pivots - Fibonacci</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="pivots-camarilla"><span>Pivots - Camarilla</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="pivots-cpr"><span>Pivots - CPR</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="indicator-atr"><span>Indicator - ATR</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="indicator-adx"><span>Indicator - ADX</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="indicator-rsi"><span>Indicator - RSI</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="indicator-kti"><span>Indicator - KTI</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="analyzer-usp"><span>Analyzer - USP</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="analyzer-fno"><span>Analyzer - F&O</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="fno-option"><span>F&O - Option</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="fno-futures"><span>F&O - Futures</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="candle-candlestick"><span>Candle - Candlestick</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="candle-heikin-ashi"><span>Candle - Heikin-Ashi</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="ichimoku-dashboard"><span>Ichimoku - Ichimoku Dashboard</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="bullets-daytrader"><span>Bullets - Day Trader Bullets</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="alerts-expert"><span>Experts Alert - Expert Alert Dashboard</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="alerts-eod"><span>Experts Alert - EOD</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="alerts-eod-followthrough"><span>Experts Alert - EOD Followthrough</span></label>
+                                <label class="feature-checkbox-item"><input type="checkbox" name="cohortFeatures" value="wisdom-dashboard"><span>Wisdom - Wisdom Dashboard</span></label>
                             </div>
                         </div>
                     </div>
@@ -365,18 +383,36 @@
             <div class="modal-body">
                 <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: rgba(255,255,255,0.03); padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                     <label class="form-label" for="reportFeatureSelect" style="margin: 0; white-space: nowrap;">Select Feature to Inspect:</label>
-                    <select id="reportFeatureSelect" class="form-input" style="max-width: 320px; font-weight: 600;">
-                        <option value="stock-analyzer" selected>Stock Analyzer</option>
-                        <option value="rolling-ticker">Rolling Ticker</option>
-                        <option value="options-trades">Options Trades</option>
-                        <option value="adx-page">ADX Page</option>
-                        <option value="rsi-page">RSI Page</option>
-                        <option value="multi-day-trades">Multi-Day Trades</option>
-                        <option value="positional-trades">Positional Trades</option>
-                        <option value="candlestick-pivots">Candlestick & Pivots</option>
-                        <option value="trades-console">Trades Console</option>
-                        <option value="dashboard">Dashboard</option>
-                        <option value="subscription">Subscription & Upgrades</option>
+                    <select id="reportFeatureSelect" class="form-input" style="max-width: 340px; font-weight: 600;">
+                        <option value="dashboard-main" selected>Dashboard - Main Page</option>
+                        <option value="dashboard-options">Dashboard - Options</option>
+                        <option value="rt-main">Rolling Ticker - Main RT Page</option>
+                        <option value="trades-option">Trades - Option</option>
+                        <option value="trades-futures">Trades - Futures</option>
+                        <option value="trades-intraday">Trades - Intraday</option>
+                        <option value="trades-multiday">Trades - Multiday</option>
+                        <option value="trades-positional">Trades - Positional</option>
+                        <option value="trades-investment">Trades - Investment</option>
+                        <option value="trades-previous">Trades - Previous Trades</option>
+                        <option value="pivots-fibonacci">Pivots - Fibonacci</option>
+                        <option value="pivots-camarilla">Pivots - Camarilla</option>
+                        <option value="pivots-cpr">Pivots - CPR</option>
+                        <option value="indicator-atr">Indicator - ATR</option>
+                        <option value="indicator-adx">Indicator - ADX</option>
+                        <option value="indicator-rsi">Indicator - RSI</option>
+                        <option value="indicator-kti">Indicator - KTI</option>
+                        <option value="analyzer-usp">Analyzer - USP</option>
+                        <option value="analyzer-fno">Analyzer - F&O</option>
+                        <option value="fno-option">F&O - Option</option>
+                        <option value="fno-futures">F&O - Futures</option>
+                        <option value="candle-candlestick">Candle - Candlestick</option>
+                        <option value="candle-heikin-ashi">Candle - Heikin-Ashi</option>
+                        <option value="ichimoku-dashboard">Ichimoku - Ichimoku Dashboard</option>
+                        <option value="bullets-daytrader">Bullets - Day Trader Bullets</option>
+                        <option value="alerts-expert">Experts Alert - Expert Alert Dashboard</option>
+                        <option value="alerts-eod">Experts Alert - EOD</option>
+                        <option value="alerts-eod-followthrough">Experts Alert - EOD Followthrough</option>
+                        <option value="wisdom-dashboard">Wisdom - Wisdom Dashboard</option>
                     </select>
                 </div>
 
@@ -421,6 +457,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.8"></script>
+    <script src="app.js?v=1.9"></script>
 </body>
 </html>

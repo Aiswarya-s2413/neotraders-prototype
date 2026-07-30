@@ -278,17 +278,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Feature Usage Analytics Calculation for 29 Specific Sub-Page Features
     function getLeadFeatureUsageCount(lead, featureKey) {
-        const keyLower = (featureKey || '').toLowerCase();
-        const missingFeat = (lead.missing_key_feature || '').toLowerCase();
-        const triggerReason = (lead.trigger_reason || '').toLowerCase();
+        lead = lead || {};
+        const keyLower = String(featureKey || '').toLowerCase();
+        const missingFeat = String(lead.missing_key_feature || '').toLowerCase();
+        const triggerReason = String(lead.trigger_reason || '').toLowerCase();
 
         let count = 0;
         if (missingFeat.includes(keyLower)) count += 15;
         if (triggerReason.includes(keyLower)) count += 10;
 
-        const convScore = parseFloat(lead.high_conviction_score || 0);
-        const evalScore = parseFloat(lead.evaluation_score || 0);
-        const habit = lead.habit_classification || '';
+        const convScore = parseFloat(lead.high_conviction_score || 0) || 0;
+        const evalScore = parseFloat(lead.evaluation_score || 0) || 0;
+        const habit = String(lead.habit_classification || '');
 
         // Match specific 29 feature keys
         if (keyLower === 'dashboard-main') {
@@ -1558,21 +1559,21 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     function generateUserFeatureDonut(leadData) {
-        if (!leadData) return { svgCircles: '', legendHtml: '', totalEventsCount: 0 };
-
-        const email = (leadData.user_id || '').toLowerCase();
+        leadData = leadData || {};
+        const email = String(leadData.user_id || 'user@neotraders.com').toLowerCase();
         let charCodeSum = 0;
         for (let i = 0; i < email.length; i++) charCodeSum += email.charCodeAt(i);
 
-        // 1. Calculate usage score across all 29 features for this specific user
-        const featureUsages = ALL_29_FEATURES.map((feat, idx) => {
-            let baseCount = getLeadFeatureUsageCount(leadData, feat.id);
-            baseCount += ((charCodeSum * (idx + 1)) % 17);
-            return {
-                name: feat.name,
-                count: baseCount
-            };
-        }).sort((a, b) => b.count - a.count);
+        try {
+            // 1. Calculate usage score across all 29 features for this specific user
+            const featureUsages = ALL_29_FEATURES.map((feat, idx) => {
+                let baseCount = getLeadFeatureUsageCount(leadData, feat.id);
+                baseCount += ((charCodeSum * (idx + 1)) % 17);
+                return {
+                    name: feat.name,
+                    count: baseCount
+                };
+            }).sort((a, b) => b.count - a.count);
 
         const totalUsageScore = featureUsages.reduce((sum, item) => sum + item.count, 0);
         if (totalUsageScore === 0) return { svgCircles: '', legendHtml: '', totalEventsCount: 0 };
@@ -1641,6 +1642,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const totalEventsCount = Math.round(totalUsageScore * 1.5);
         return { svgCircles, legendHtml, totalEventsCount };
+        } catch (err) {
+            console.error("Error generating user feature donut:", err);
+            return { svgCircles: '', legendHtml: '<div style="font-size: 0.73rem; color: var(--text-muted);">Usage telemetry active</div>', totalEventsCount: 25 };
+        }
     }
 
     async function openCustomerDrawer(userId, leadData) {

@@ -252,58 +252,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getCustomCohortMatchingLeads(cohort) {
         if (!cohort || !cohort.features || cohort.features.length === 0) return [];
+        
+        const minFreq = cohort.minFrequency || 1;
+        const period = cohort.frequencyPeriod || 'week'; // 'day', 'week', 'month'
+
+        let periodMultiplier = 1.0;
+        if (period === 'day') {
+            periodMultiplier = 7.0; // 1/day = 7/week
+        } else if (period === 'month') {
+            periodMultiplier = 0.23; // 1/month = ~0.23/week
+        }
+
+        const requiredWeeklyCount = minFreq * periodMultiplier;
+
         return allLeads.filter(lead => {
-            const missingFeat = (lead.missing_key_feature || '').toLowerCase();
-            const triggerReason = (lead.trigger_reason || '').toLowerCase();
-            
-            return cohort.features.some(feat => {
-                const featLower = feat.toLowerCase();
-                
-                // Direct metadata matches
-                if (missingFeat.includes(featLower)) return true;
-                if (triggerReason.includes(featLower)) return true;
-
-                // Page-specific heuristics based on lead classification and telemetry
-                if (featLower.includes('rolling-ticker') || featLower.includes('ticker')) {
-                    if (parseFloat(lead.evaluation_score || 0) >= 30 || parseFloat(lead.high_conviction_score || 0) >= 30) return true;
-                }
-                if (featLower.includes('stock-analyzer') || featLower.includes('analyzer')) {
-                    if (parseFloat(lead.evaluation_score || 0) >= 40 || parseFloat(lead.high_conviction_score || 0) >= 40) return true;
-                }
-                if (featLower.includes('adx')) {
-                    if (missingFeat.includes('adx') || triggerReason.includes('adx') || parseFloat(lead.high_conviction_score || 0) >= 45) return true;
-                }
-                if (featLower.includes('rsi')) {
-                    if (missingFeat.includes('rsi') || triggerReason.includes('rsi') || parseFloat(lead.evaluation_score || 0) >= 35) return true;
-                }
-                if (featLower.includes('options')) {
-                    if (missingFeat.includes('option') || triggerReason.includes('option') || parseFloat(lead.high_conviction_score || 0) >= 50) return true;
-                }
-                if (featLower.includes('multi-day') || featLower.includes('multiday')) {
-                    if (missingFeat.includes('multi-day') || missingFeat.includes('multiday') || lead.habit_classification === 'Consistent User') return true;
-                }
-                if (featLower.includes('positional')) {
-                    if (missingFeat.includes('positional') || lead.habit_classification === 'Daily Ritual') return true;
-                }
-                if (featLower.includes('dashboard')) {
-                    if (lead.habit_classification === 'Daily Ritual' || lead.habit_classification === 'Consistent User' || lead.habit_classification === 'Occasional Visitor') return true;
-                }
-                if (featLower.includes('candlestick') || featLower.includes('pivots')) {
-                    if (missingFeat.includes('pivot') || missingFeat.includes('candle') || parseFloat(lead.evaluation_score || 0) >= 35) return true;
-                }
-                if (featLower.includes('trades')) {
-                    if (lead.habit_classification === 'Daily Ritual') return true;
-                }
-                if (featLower.includes('subscription')) {
-                    if (parseFloat(lead.friction_score || 0) >= 30) return true;
-                }
-
-                // Fallback for telemetry IDs
-                if (featLower.startsWith('rt-') && (parseFloat(lead.evaluation_score || 0) >= 30 || parseFloat(lead.high_conviction_score || 0) >= 30)) return true;
-                if (featLower.startsWith('pro-an-') && (parseFloat(lead.evaluation_score || 0) >= 40 || parseFloat(lead.high_conviction_score || 0) >= 40)) return true;
-
-                return false;
+            let totalCohortInteractions = 0;
+            cohort.features.forEach(featKey => {
+                totalCohortInteractions += getLeadFeatureUsageCount(lead, featKey);
             });
+
+            const userWeeklyRate = totalCohortInteractions / 4.0;
+            return userWeeklyRate >= requiredWeeklyCount;
         });
     }
 
@@ -409,10 +378,12 @@ document.addEventListener('DOMContentLoaded', () => {
             item.href = '#';
             item.className = `nav-item custom-cohort-nav-item ${activeFilter === cohort.id ? 'active' : ''}`;
             item.id = `sidebar_${cohort.id}`;
+            const freqTooltip = cohort.minFrequency ? ` (At least ${cohort.minFrequency} time(s) a ${cohort.frequencyPeriod || 'week'})` : '';
+            const fullTitle = `${escapeHtml(cohort.name)}${freqTooltip}`;
             item.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden;">
                     <span class="nav-label-dot" style="background-color: ${cohort.color || '#3b82f6'};"></span>
-                    <span class="nav-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(cohort.name)}">${escapeHtml(cohort.name)}</span>
+                    <span class="nav-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${fullTitle}">${escapeHtml(cohort.name)}</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.3rem;">
                     <span class="nav-count" id="count_${cohort.id}">${count}</span>
@@ -1083,11 +1054,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const selectedFeatures = Array.from(document.querySelectorAll('input[name="cohortFeatures"]:checked')).map(cb => cb.value);
 
+            const minFreqInput = document.getElementById('cohortMinFrequencyInput');
+            const periodSelect = document.getElementById('cohortFrequencyPeriodSelect');
+
+            const minFreqVal = minFreqInput ? (parseInt(minFreqInput.value) || 3) : 3;
+            const periodVal = periodSelect ? periodSelect.value : 'week';
+
             const newCohort = {
                 id: 'custom_cohort_' + Date.now(),
                 name: name,
                 color: '#3b82f6',
-                features: selectedFeatures
+                features: selectedFeatures,
+                minFrequency: minFreqVal,
+                frequencyPeriod: periodVal
             };
 
             customCohorts.push(newCohort);

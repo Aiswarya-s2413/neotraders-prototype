@@ -1646,6 +1646,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function openCustomerDrawer(userId, leadData) {
         if (!customerDrawer || !drawerContent) return;
         leadData = leadData || {};
+        userId = userId || 'user@neotraders.com';
         
         customerDrawer.classList.add('open');
         
@@ -1673,9 +1674,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let customer = null;
         try {
             const response = await fetch(`/api/customers/${encodeURIComponent(userId)}`);
-            const resData = await response.json();
-            if (resData.status === 'success' && resData.data) {
-                customer = resData.data;
+            if (response.ok) {
+                const resData = await response.json();
+                if (resData && resData.status === 'success' && resData.data) {
+                    customer = resData.data;
+                }
             }
         } catch (err) {
             console.warn("Could not fetch customer details from API, using fallback profile:", err);
@@ -1700,12 +1703,13 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const colors = ['#e11d48', '#2563eb', '#059669', '#d97706', '#7c3aed', '#0891b2'];
             let charCodeSum = 0;
-            const nameForAvatar = customer.full_name || userId;
+            const nameForAvatar = customer.full_name || customer.email || userId;
             for (let i = 0; i < nameForAvatar.length; i++) charCodeSum += nameForAvatar.charCodeAt(i);
             const avatarBg = colors[charCodeSum % colors.length];
             
             const initials = nameForAvatar.split(' ')
                 .map(word => word[0])
+                .filter(Boolean)
                 .join('')
                 .slice(0, 2)
                 .toUpperCase() || 'U';
@@ -1713,12 +1717,14 @@ document.addEventListener('DOMContentLoaded', () => {
             let creationDate = 'N/A';
             if (customer.created_at) {
                 const d = new Date(customer.created_at);
-                creationDate = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                if (!isNaN(d.getTime())) {
+                    creationDate = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                }
             }
             
-            const planName = customer.subscription_plan || 'Free Account';
-            const statusName = customer.subscription_status || 'Unsubscribed';
-            const is_active = customer.is_active;
+            const planName = String(customer.subscription_plan || 'Free Account');
+            const statusName = String(customer.subscription_status || 'Unsubscribed');
+            const is_active = Boolean(customer.is_active);
             
             let planColor = '#64748b';
             if (planName.includes('Pro')) planColor = 'var(--accent-teal)';
@@ -1731,7 +1737,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const convictionVal = Math.round(parseFloat(leadData.high_conviction_score || 0));
             const evaluationVal = Math.round(parseFloat(leadData.evaluation_score || 0));
             const frictionVal = Math.round(parseFloat(leadData.friction_score || 0));
-            const valueGapVal = leadData.value_gap_percentage !== undefined ? Math.round(parseFloat(leadData.value_gap_percentage || 0)) : null;
+            const valueGapVal = leadData.value_gap_percentage !== undefined && leadData.value_gap_percentage !== null ? Math.round(parseFloat(leadData.value_gap_percentage || 0)) : null;
             const prob = leadData.conversion_probability || 0;
             
             let probClass = 'prob-low';
@@ -1745,7 +1751,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="drawer-profile-summary">
                     <div class="drawer-avatar" style="background-color: ${avatarBg}">${initials}</div>
                     <h3 class="drawer-name">${customer.full_name || 'Anonymous User'}</h3>
-                    <span class="drawer-email-sub">${customer.email}</span>
+                    <span class="drawer-email-sub">${customer.email || userId}</span>
                     <div style="margin-top: 0.25rem; display: flex; gap: 0.5rem; justify-content: center;">
                         <span class="pill" style="font-size: 0.65rem; background: ${planColor}15; color: ${planColor}; border: 1px solid ${planColor}40; padding: 2px 8px; border-radius: 20px;">${planName}</span>
                         <span class="pill" style="font-size: 0.65rem; background: ${statusColor}15; color: ${statusColor}; border: 1px solid ${statusColor}40; padding: 2px 8px; border-radius: 20px;">${statusName}</span>
@@ -1832,13 +1838,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         } catch (error) {
             console.error("Error loading customer profile:", error);
-            drawerContent.innerHTML = `
-                <div style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted);">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem; opacity: 0.5;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <p style="font-size: 0.9rem; line-height: 1.4rem;">Could not fetch profile details for this customer.</p>
-                    <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.7;">Check backend log or try refreshing the dashboard.</p>
-                </div>
-            `;
         }
     }
     

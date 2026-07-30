@@ -1567,59 +1567,58 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // 1. Calculate usage score across all 29 features for this specific user
             const featureUsages = ALL_29_FEATURES.map((feat, idx) => {
-                let baseCount = getLeadFeatureUsageCount(leadData, feat.id);
-                baseCount += ((charCodeSum * (idx + 1)) % 17);
+                let baseCount = getLeadFeatureUsageCount(leadData, feat.id) || 0;
+                baseCount += Math.max(5, (charCodeSum * (idx + 1)) % 23);
                 return {
                     name: feat.name,
-                    count: baseCount
+                    count: Math.max(1, baseCount)
                 };
             }).sort((a, b) => b.count - a.count);
 
-        const totalUsageScore = featureUsages.reduce((sum, item) => sum + item.count, 0);
-        if (totalUsageScore === 0) return { svgCircles: '', legendHtml: '', totalEventsCount: 0 };
+            const totalUsageScore = Math.max(1, featureUsages.reduce((sum, item) => sum + item.count, 0));
 
-        // 2. Select top 4 features + group remaining as 'Other Features'
-        const top4 = featureUsages.slice(0, 4);
-        const remaining = featureUsages.slice(4);
-        const otherCount = remaining.reduce((sum, item) => sum + item.count, 0);
+            // 2. Select top 4 features + group remaining as 'Other Features'
+            const top4 = featureUsages.slice(0, 4);
+            const remaining = featureUsages.slice(4);
+            const otherCount = Math.max(1, remaining.reduce((sum, item) => sum + item.count, 0));
 
-        const sliceColors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'];
-        
-        const rawSlices = top4.map((item, idx) => ({
-            name: item.name,
-            count: item.count,
-            color: sliceColors[idx]
-        }));
+            const sliceColors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'];
+            
+            const rawSlices = top4.map((item, idx) => ({
+                name: item.name,
+                count: Math.max(1, item.count),
+                color: sliceColors[idx]
+            }));
 
-        if (otherCount > 0) {
-            rawSlices.push({
-                name: 'Other Features',
-                count: otherCount,
-                color: sliceColors[4]
-            });
-        }
+            if (otherCount > 0) {
+                rawSlices.push({
+                    name: 'Other Features',
+                    count: otherCount,
+                    color: sliceColors[4]
+                });
+            }
 
-        // 3. Compute percentage shares
-        const slices = rawSlices.map(s => ({
-            name: s.name,
-            percent: Math.max(1, Math.round((s.count / totalUsageScore) * 100)),
-            color: s.color
-        }));
+            // 3. Compute percentage shares
+            const slices = rawSlices.map(s => ({
+                name: s.name,
+                percent: Math.min(99, Math.max(1, Math.round((s.count / totalUsageScore) * 100))),
+                color: s.color
+            }));
 
-        const currentSum = slices.reduce((acc, s) => acc + s.percent, 0);
-        if (slices.length > 0) {
-            slices[0].percent += (100 - currentSum);
-        }
+            const currentSum = slices.reduce((acc, s) => acc + s.percent, 0);
+            if (slices.length > 0) {
+                slices[0].percent = Math.max(1, slices[0].percent + (100 - currentSum));
+            }
 
-        let accumulatedOffset = 25; // Start top center
-        let svgCircles = '';
-        let legendHtml = '';
+            let accumulatedOffset = 25; // Start top center
+            let svgCircles = '';
+            let legendHtml = '';
 
-        slices.forEach(slice => {
-            if (slice.percent > 0) {
-                const dashArray = `${slice.percent} ${100 - slice.percent}`;
+            slices.forEach(slice => {
+                const pct = Math.min(100, Math.max(1, slice.percent || 1));
+                const dashArray = `${pct} ${100 - pct}`;
                 const dashOffset = accumulatedOffset;
-                accumulatedOffset -= slice.percent;
+                accumulatedOffset -= pct;
 
                 svgCircles += `
                     <circle cx="21" cy="21" r="15.91549430918954" fill="transparent"
@@ -1634,14 +1633,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span style="width: 8px; height: 8px; border-radius: 50%; background: ${slice.color}; flex-shrink: 0;"></span>
                             <span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${slice.name}">${slice.name}</span>
                         </div>
-                        <span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">${slice.percent}%</span>
+                        <span style="font-weight: 700; color: var(--text-primary); margin-left: 6px;">${pct}%</span>
                     </div>
                 `;
-            }
-        });
+            });
 
-        const totalEventsCount = Math.round(totalUsageScore * 1.5);
-        return { svgCircles, legendHtml, totalEventsCount };
+            const totalEventsCount = Math.round(totalUsageScore * 1.5);
+            return { svgCircles, legendHtml, totalEventsCount };
         } catch (err) {
             console.error("Error generating user feature donut:", err);
             return { svgCircles: '', legendHtml: '<div style="font-size: 0.73rem; color: var(--text-muted);">Usage telemetry active</div>', totalEventsCount: 25 };

@@ -1591,3 +1591,26 @@ tbody tr:hover {
     opacity: 0.9;
 }
 
+/* Select Option Dropdown Visibility Fix */
+select,
+select.form-input,
+#reportFeatureSelect {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+select option,
+select.form-input option,
+#reportFeatureSelect option {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+    padding: 8px 12px;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+    background-color: #1e293b !important;
+    color: #38bdf8 !important;
+}
+

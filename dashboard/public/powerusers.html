@@ -68,6 +68,11 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                             <span>Add Custom Cohort</span>
                         </button>
+                        <a href="pricing-analytics.html" class="nav-item" id="sidebarPricingAnalytics" style="margin-top: 0.25rem;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; color: #f59e0b;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                            <span class="nav-label">Pricing Page Analytics</span>
+                            <span class="nav-count" id="countPricingPage">0</span>
+                        </a>
                     </nav>
                 </div>
 
@@ -345,7 +350,7 @@
 
                     <div class="form-group" style="margin-top: 1rem;">
                         <label class="form-label" style="margin-bottom: 0.4rem;">Minimum Usage Frequency</label>
-                        <div style="display: flex; gap: 0.75rem; align-items: center; background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <div style="display: flex; gap: 0.75rem; align-items: center; background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-wrap: wrap;">
                             <div style="flex: 1; display: flex; align-items: center; gap: 0.4rem;">
                                 <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">At least</span>
                                 <input type="number" id="cohortMinFrequencyInput" class="form-input" value="3" min="1" max="1000" style="width: 70px; text-align: center; font-weight: 700; padding: 4px 6px;">
@@ -356,7 +361,14 @@
                                     <option value="day">a day (Daily)</option>
                                     <option value="week" selected>a week (Weekly)</option>
                                     <option value="month">a month (Monthly)</option>
+                                    <option value="custom">in custom date range...</option>
                                 </select>
+                            </div>
+                            <div id="cohortCustomDateContainer" style="display: none; width: 100%; margin-top: 0.4rem; align-items: center; gap: 0.4rem; background: rgba(0,0,0,0.2); padding: 0.4rem 0.6rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                <label for="cohortDateFrom" style="font-size: 0.75rem; color: var(--text-muted); margin: 0; white-space: nowrap;">From:</label>
+                                <input type="date" id="cohortDateFrom" class="form-input" style="font-size: 0.75rem; padding: 0.25rem 0.4rem; width: 130px;">
+                                <label for="cohortDateTo" style="font-size: 0.75rem; color: var(--text-muted); margin: 0; white-space: nowrap;">To:</label>
+                                <input type="date" id="cohortDateTo" class="form-input" style="font-size: 0.75rem; padding: 0.25rem 0.4rem; width: 130px;">
                             </div>
                         </div>
                     </div>
@@ -372,7 +384,7 @@
 
     <!-- Feature Usage Report Modal -->
     <div class="modal-overlay" id="featureReportModal" style="display: none;">
-        <div class="modal-container" style="max-width: 780px;">
+        <div class="modal-container" style="max-width: 920px;">
             <div class="modal-header">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-blue);"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
@@ -381,39 +393,76 @@
                 <button type="button" class="modal-close-btn" id="btnCloseFeatureReportModal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: rgba(255,255,255,0.03); padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                    <label class="form-label" for="reportFeatureSelect" style="margin: 0; white-space: nowrap;">Select Feature to Inspect:</label>
-                    <select id="reportFeatureSelect" class="form-input" style="max-width: 340px; font-weight: 600;">
-                        <option value="dashboard-main" selected>Dashboard - Main Page</option>
-                        <option value="dashboard-options">Dashboard - Options</option>
-                        <option value="rt-main">Rolling Ticker - Main RT Page</option>
-                        <option value="trades-option">Trades - Option</option>
-                        <option value="trades-futures">Trades - Futures</option>
-                        <option value="trades-intraday">Trades - Intraday</option>
-                        <option value="trades-multiday">Trades - Multiday</option>
-                        <option value="trades-positional">Trades - Positional</option>
-                        <option value="trades-investment">Trades - Investment</option>
-                        <option value="trades-previous">Trades - Previous Trades</option>
-                        <option value="pivots-fibonacci">Pivots - Fibonacci</option>
-                        <option value="pivots-camarilla">Pivots - Camarilla</option>
-                        <option value="pivots-cpr">Pivots - CPR</option>
-                        <option value="indicator-atr">Indicator - ATR</option>
-                        <option value="indicator-adx">Indicator - ADX</option>
-                        <option value="indicator-rsi">Indicator - RSI</option>
-                        <option value="indicator-kti">Indicator - KTI</option>
-                        <option value="analyzer-usp">Analyzer - USP</option>
-                        <option value="analyzer-fno">Analyzer - F&O</option>
-                        <option value="fno-option">F&O - Option</option>
-                        <option value="fno-futures">F&O - Futures</option>
-                        <option value="candle-candlestick">Candle - Candlestick</option>
-                        <option value="candle-heikin-ashi">Candle - Heikin-Ashi</option>
-                        <option value="ichimoku-dashboard">Ichimoku - Ichimoku Dashboard</option>
-                        <option value="bullets-daytrader">Bullets - Day Trader Bullets</option>
-                        <option value="alerts-expert">Experts Alert - Expert Alert Dashboard</option>
-                        <option value="alerts-eod">Experts Alert - EOD</option>
-                        <option value="alerts-eod-followthrough">Experts Alert - EOD Followthrough</option>
-                        <option value="wisdom-dashboard">Wisdom - Wisdom Dashboard</option>
-                    </select>
+                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; background: rgba(255,255,255,0.03); padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 260px;">
+                        <label class="form-label" for="reportFeatureSelect" style="margin: 0; white-space: nowrap; font-size: 0.8rem;">Feature:</label>
+                        <select id="reportFeatureSelect" class="form-input" style="font-weight: 600; font-size: 0.8rem;">
+                            <optgroup label="💳 Pricing Page Actions">
+                                <option value="pricing-page">Pricing Page - Page Visit (pricing-page)</option>
+                                <option value="pricing-back-link">Pricing Page - Back Link (pricing-back-link)</option>
+                                <option value="pricing-cycle-toggle">Pricing Page - Billing Toggle (pricing-cycle-toggle)</option>
+                                <option value="pricing-pro-cta">Pricing Page - Pro Plan CTA (pricing-pro-cta)</option>
+                                <option value="pricing-genie-cta">Pricing Page - Genie Plan CTA (pricing-genie-cta)</option>
+                                <option value="pricing-ala-page-item">Pricing Page - Add-on Page Row (pricing-ala-page-item)</option>
+                                <option value="pricing-ala-cta">Pricing Page - À La Carte CTA (pricing-ala-cta)</option>
+                                <option value="pricing-compare-table">Pricing Page - Compare Table (pricing-compare-table)</option>
+                                <option value="pricing-footer-links">Pricing Page - Footer Links (pricing-footer-links)</option>
+                            </optgroup>
+                            <optgroup label="📊 Platform Features & Modules">
+                                <option value="dashboard-main" selected>Dashboard - Main Page</option>
+                                <option value="dashboard-options">Dashboard - Options</option>
+                                <option value="rt-main">Rolling Ticker - Main RT Page</option>
+                                <option value="trades-option">Trades - Option</option>
+                                <option value="trades-futures">Trades - Futures</option>
+                                <option value="trades-intraday">Trades - Intraday</option>
+                                <option value="trades-multiday">Trades - Multiday</option>
+                                <option value="trades-positional">Trades - Positional</option>
+                                <option value="trades-investment">Trades - Investment</option>
+                                <option value="trades-previous">Trades - Previous Trades</option>
+                                <option value="pivots-fibonacci">Pivots - Fibonacci</option>
+                                <option value="pivots-camarilla">Pivots - Camarilla</option>
+                                <option value="pivots-cpr">Pivots - CPR</option>
+                                <option value="indicator-atr">Indicator - ATR</option>
+                                <option value="indicator-adx">Indicator - ADX</option>
+                                <option value="indicator-rsi">Indicator - RSI</option>
+                                <option value="indicator-kti">Indicator - KTI</option>
+                                <option value="analyzer-usp">Analyzer - USP</option>
+                                <option value="analyzer-fno">Analyzer - F&O</option>
+                                <option value="fno-option">F&O - Option</option>
+                                <option value="fno-futures">F&O - Futures</option>
+                                <option value="candle-candlestick">Candle - Candlestick</option>
+                                <option value="candle-heikin-ashi">Candle - Heikin-Ashi</option>
+                                <option value="ichimoku-dashboard">Ichimoku - Ichimoku Dashboard</option>
+                                <option value="bullets-daytrader">Bullets - Day Trader Bullets</option>
+                                <option value="alerts-expert">Experts Alert - Expert Alert Dashboard</option>
+                                <option value="alerts-eod">Experts Alert - EOD</option>
+                                <option value="alerts-eod-followthrough">Experts Alert - EOD Followthrough</option>
+                                <option value="wisdom-dashboard">Wisdom - Wisdom Dashboard</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <label class="form-label" for="reportTimeframeSelect" style="margin: 0; white-space: nowrap; font-size: 0.8rem;">Time Frame:</label>
+                        <select id="reportTimeframeSelect" class="form-input" style="font-weight: 600; font-size: 0.8rem; width: 140px;">
+                            <option value="all" selected>All Time</option>
+                            <option value="24h">Last 24 Hours</option>
+                            <option value="7d">Last 7 Days</option>
+                            <option value="30d">Last 30 Days</option>
+                            <option value="90d">Last 90 Days</option>
+                            <option value="custom">Custom Range...</option>
+                        </select>
+                        <button type="button" id="btnApplyReportTimeframe" class="btn-modal-save" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; background: var(--accent-blue); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;">Apply Filter</button>
+                    </div>
+                    <div id="reportCustomDateContainer" style="display: none; align-items: center; gap: 0.4rem; background: rgba(0,0,0,0.2); padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <label for="reportDateFrom" style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">From:</label>
+                        <input type="date" id="reportDateFrom" class="form-input" style="font-size: 0.75rem; padding: 0.25rem 0.4rem; width: 130px;">
+                        <label for="reportDateTo" style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">To:</label>
+                        <input type="date" id="reportDateTo" class="form-input" style="font-size: 0.75rem; padding: 0.25rem 0.4rem; width: 130px;">
+                    </div>
+                    <button type="button" id="btnExportFeatureReportExcel" class="btn-modal-save" style="display: flex; align-items: center; gap: 0.4rem; background: #10b981; color: #fff; border: none; padding: 0.45rem 0.85rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        <span>Export Excel</span>
+                    </button>
                 </div>
 
                 <!-- KPI Summary Row for Selected Feature -->
@@ -433,14 +482,16 @@
                 </div>
 
                 <!-- Leaderboard Table -->
-                <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); overflow: hidden; max-height: 300px; overflow-y: auto;">
+                <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); overflow: hidden; max-height: 320px; overflow-y: auto;">
                     <table class="leads-table" style="font-size: 0.8rem;">
                         <thead>
                             <tr>
                                 <th style="width: 50px; text-align: center;">Rank</th>
-                                <th>User Email / ID</th>
-                                <th>Usage Count</th>
-                                <th>Conviction</th>
+                                <th>User Name</th>
+                                <th>Email / ID</th>
+                                <th>Subscription Details</th>
+                                <th style="text-align: center;">Usage Count</th>
+                                <th style="text-align: center;">Conviction</th>
                                 <th>Cohort</th>
                             </tr>
                         </thead>

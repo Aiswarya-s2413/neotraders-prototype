@@ -1140,8 +1140,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function syncFilterPillsUI() {
         if (!filterPills) return;
-        
-        // Remove active class from all static pills
         filterPills.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
         
         // Remove any temporary custom pills

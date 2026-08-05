@@ -1627,7 +1627,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sidebarPricingAnalytics = document.getElementById('sidebarPricingAnalytics');
     const sidebarSalesTriggers = document.getElementById('badgeSalesTriggers') ? document.getElementById('badgeSalesTriggers').closest('.nav-item') : null;
-    const mainContentEl = document.querySelector('.main-content:not(#pricingAnalyticsMainView)');
+    const salesTriggersMainView = document.getElementById('salesTriggersMainView');
     const rightPanelEl = document.querySelector('.right-panel');
     const pricingAnalyticsMainView = document.getElementById('pricingAnalyticsMainView');
 
@@ -1638,7 +1638,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.sidebar .nav-item').forEach(item => item.classList.remove('active'));
                 sidebarPricingAnalytics.classList.add('active');
 
-                if (mainContentEl) mainContentEl.style.display = 'none';
+                if (salesTriggersMainView) salesTriggersMainView.style.display = 'none';
                 if (rightPanelEl) rightPanelEl.style.display = 'none';
                 pricingAnalyticsMainView.style.display = 'block';
 
@@ -1654,7 +1654,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.sidebar .nav-item').forEach(item => item.classList.remove('active'));
                 sidebarSalesTriggers.classList.add('active');
 
-                if (mainContentEl) mainContentEl.style.display = 'block';
+                if (salesTriggersMainView) salesTriggersMainView.style.display = 'block';
                 if (rightPanelEl) rightPanelEl.style.display = 'flex';
                 pricingAnalyticsMainView.style.display = 'none';
 

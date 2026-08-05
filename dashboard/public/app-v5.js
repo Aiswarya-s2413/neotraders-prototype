@@ -1342,6 +1342,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const nameInput = document.getElementById('cohortNameInput');
                 if (nameInput) nameInput.value = '';
                 document.querySelectorAll('input[name="cohortFeatures"]').forEach(cb => cb.checked = false);
+                syncCohortFrequencyPeriodUI();
             }
         });
     }
@@ -1372,26 +1373,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const cohortFrequencyPeriodSelect = document.getElementById('cohortFrequencyPeriodSelect');
-    const cohortCustomDateContainer = document.getElementById('cohortCustomDateContainer');
-    const cohortDateFrom = document.getElementById('cohortDateFrom');
-    const cohortDateTo = document.getElementById('cohortDateTo');
+    function syncCohortFrequencyPeriodUI() {
+        const cohortFrequencyPeriodSelect = document.getElementById('cohortFrequencyPeriodSelect');
+        const cohortCustomDateContainer = document.getElementById('cohortCustomDateContainer');
+        const cohortDateFrom = document.getElementById('cohortDateFrom');
+        const cohortDateTo = document.getElementById('cohortDateTo');
+
+        if (!cohortFrequencyPeriodSelect || !cohortCustomDateContainer) return;
+
+        if (cohortFrequencyPeriodSelect.value === 'custom') {
+            cohortCustomDateContainer.style.display = 'flex';
+            if (cohortDateFrom && !cohortDateFrom.value) {
+                const dFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                cohortDateFrom.value = dFrom.toISOString().slice(0, 10);
+            }
+            if (cohortDateTo && !cohortDateTo.value) {
+                const dTo = new Date();
+                cohortDateTo.value = dTo.toISOString().slice(0, 10);
+            }
+        } else {
+            cohortCustomDateContainer.style.display = 'none';
+        }
+    }
+    window.syncCohortFrequencyPeriodUI = syncCohortFrequencyPeriodUI;
 
     if (cohortFrequencyPeriodSelect) {
-        cohortFrequencyPeriodSelect.addEventListener('change', (e) => {
-            if (e.target.value === 'custom') {
-                if (cohortCustomDateContainer) cohortCustomDateContainer.style.display = 'flex';
-                if (cohortDateFrom && !cohortDateFrom.value) {
-                    const dFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-                    cohortDateFrom.value = dFrom.toISOString().slice(0, 10);
-                }
-                if (cohortDateTo && !cohortDateTo.value) {
-                    const dTo = new Date();
-                    cohortDateTo.value = dTo.toISOString().slice(0, 10);
-                }
-            } else {
-                if (cohortCustomDateContainer) cohortCustomDateContainer.style.display = 'none';
-            }
+        cohortFrequencyPeriodSelect.addEventListener('change', () => {
+            syncCohortFrequencyPeriodUI();
         });
     }
 
@@ -1546,6 +1554,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reportCustomDateContainer.style.display = 'none';
         }
     }
+    window.syncReportTimeframeUI = syncReportTimeframeUI;
 
     // Standalone Pricing Page Analytics Controls
     const pricingElementSelect = document.getElementById('pricingElementSelect');

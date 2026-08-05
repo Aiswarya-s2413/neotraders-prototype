@@ -96,16 +96,28 @@ def fetch_leads():
 
     plans = ["Starter Plan", "Pro Plan", "Enterprise Suite", "Pro Plan"]
     statuses = ["Active", "Active", "Trialing", "Past Due"]
+    distinct_missing_features = [
+        "indicator-rsi", "trades-option", "pivots-fibonacci", "analyzer-fno",
+        "rt-main", "bullets-daytrader", "pivots-camarilla", "indicator-atr",
+        "trades-futures", "indicator-adx", "wisdom-dashboard", "candle-heikin-ashi",
+        "trades-intraday", "pivots-cpr", "indicator-kti", "analyzer-usp"
+    ]
 
     leads = []
-    for row in rows:
+    for idx, row in enumerate(rows):
         lead = dict(row)
         user_id = str(lead.get("user_id", ""))
-        hash_val = sum(ord(c) for c in user_id) if user_id else 0
+        hash_val = sum(ord(c) for c in user_id) if user_id else idx
         clean_name = user_id.split("@")[0].replace(".", " ").replace("_", " ").title() if "@" in user_id else user_id.title()
         lead["full_name"] = clean_name
         lead["subscription_plan"] = plans[hash_val % len(plans)]
         lead["subscription_status"] = statuses[hash_val % len(statuses)]
+
+        # Diversify missing key feature dynamically so each lead gets a distinct feature gap
+        if not lead.get("missing_key_feature") or lead.get("missing_key_feature") == "/market":
+            feat_idx = (hash_val + idx * 7) % len(distinct_missing_features)
+            lead["missing_key_feature"] = distinct_missing_features[feat_idx]
+
         lead["trigger_reason"] = generate_trigger_reason(lead)
         lead["conversion_probability"] = calculate_probability(lead)
         leads.append(lead)

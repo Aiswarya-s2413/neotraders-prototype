@@ -1625,6 +1625,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const sidebarPricingAnalytics = document.getElementById('sidebarPricingAnalytics');
+    const sidebarSalesTriggers = document.getElementById('badgeSalesTriggers') ? document.getElementById('badgeSalesTriggers').closest('.nav-item') : null;
+    const mainContentEl = document.querySelector('.main-content:not(#pricingAnalyticsMainView)');
+    const rightPanelEl = document.querySelector('.right-panel');
+    const pricingAnalyticsMainView = document.getElementById('pricingAnalyticsMainView');
+
+    if (sidebarPricingAnalytics && pricingAnalyticsMainView) {
+        sidebarPricingAnalytics.addEventListener('click', (e) => {
+            if (pricingAnalyticsMainView) {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar .nav-item').forEach(item => item.classList.remove('active'));
+                sidebarPricingAnalytics.classList.add('active');
+
+                if (mainContentEl) mainContentEl.style.display = 'none';
+                if (rightPanelEl) rightPanelEl.style.display = 'none';
+                pricingAnalyticsMainView.style.display = 'block';
+
+                renderPricingAnalyticsPage();
+            }
+        });
+    }
+
+    if (sidebarSalesTriggers && pricingAnalyticsMainView) {
+        sidebarSalesTriggers.addEventListener('click', (e) => {
+            if (pricingAnalyticsMainView && pricingAnalyticsMainView.style.display === 'block') {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar .nav-item').forEach(item => item.classList.remove('active'));
+                sidebarSalesTriggers.classList.add('active');
+
+                if (mainContentEl) mainContentEl.style.display = 'block';
+                if (rightPanelEl) rightPanelEl.style.display = 'flex';
+                pricingAnalyticsMainView.style.display = 'none';
+
+                renderTable();
+            }
+        });
+    }
+
     if (btnExportPricingExcel) {
         btnExportPricingExcel.addEventListener('click', () => {
             const feat = pricingElementSelect ? pricingElementSelect.value : 'pricing-page';

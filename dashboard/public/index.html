@@ -256,6 +256,116 @@
                 <!-- Dynamically populated events -->
             </div>
         </aside>
+
+        <!-- Dynamic Pricing Page Analytics View inside index.html -->
+        <main class="main-content" id="pricingAnalyticsMainView" style="display: none; grid-column: 2 / -1;">
+            <div class="content-body" style="padding: 1.25rem;">
+                <!-- Top Metrics Banner for Pricing Page -->
+                <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.25rem;">
+                    <div class="kpi-card glass-panel animate-fade-in-up delay-1">
+                        <span class="kpi-label">TOTAL PRICING EVENTS</span>
+                        <div class="kpi-value-row">
+                            <h3 class="kpi-value" id="pricingTotalEvents">0</h3>
+                            <span class="trend-badge trend-up">Interactions</span>
+                        </div>
+                        <span class="kpi-subtext">Total clicks & visits</span>
+                    </div>
+
+                    <div class="kpi-card glass-panel animate-fade-in-up delay-2">
+                        <span class="kpi-label">TOP POWER USER</span>
+                        <div class="kpi-value-row">
+                            <h3 class="kpi-value" id="pricingTopUser" style="font-size: 1.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">N/A</h3>
+                        </div>
+                        <span class="kpi-subtext">Highest intent prospect</span>
+                    </div>
+
+                    <div class="kpi-card glass-panel animate-fade-in-up delay-3">
+                        <span class="kpi-label">AVG CONVICTION SCORE</span>
+                        <div class="kpi-value-row">
+                            <h3 class="kpi-value" id="pricingAvgConviction">0%</h3>
+                            <span class="trend-badge trend-up" style="font-size: 0.65rem;">Benchmark: 65%</span>
+                        </div>
+                        <span class="kpi-subtext">Mean intent score</span>
+                    </div>
+
+                    <div class="kpi-card glass-panel animate-fade-in-up delay-4">
+                        <span class="kpi-label">MOST CLICKED CTA</span>
+                        <div class="kpi-value-row">
+                            <h3 class="kpi-value" id="pricingTopCTA" style="font-size: 1.1rem; color: var(--accent-teal);">Pro Plan CTA</h3>
+                        </div>
+                        <span class="kpi-subtext">High conversion trigger</span>
+                    </div>
+                </div>
+
+                <!-- Main Pricing Analytics Panel -->
+                <div class="table-container glass-panel animate-fade-in-up delay-4" style="padding: 1.25rem;">
+                    <div style="margin-bottom: 1.25rem;">
+                        <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">Pricing Page Analytics & Button Clicks</h2>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Track account visits, CTA button clicks, billing toggles, and conversion funnel across pricing page elements</span>
+                    </div>
+
+                    <!-- Controls Bar -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; background: rgba(255,255,255,0.02); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 280px;">
+                            <label class="form-label" for="pricingElementSelect" style="margin: 0; white-space: nowrap; font-size: 0.85rem; font-weight: 600;">Pricing Action / Element:</label>
+                            <select id="pricingElementSelect" class="form-input" style="font-weight: 600; font-size: 0.85rem;">
+                                <option value="pricing-page" selected>Pricing Page - Page Visit (pricing-page)</option>
+                                <option value="pricing-back-link">Pricing Page - Back Link (pricing-back-link)</option>
+                                <option value="pricing-cycle-toggle">Pricing Page - Billing Toggle (pricing-cycle-toggle)</option>
+                                <option value="pricing-pro-cta">Pricing Page - Pro Plan CTA (pricing-pro-cta)</option>
+                                <option value="pricing-genie-cta">Pricing Page - Genie Plan CTA (pricing-genie-cta)</option>
+                                <option value="pricing-ala-page-item">Pricing Page - Add-on Page Row (pricing-ala-page-item)</option>
+                                <option value="pricing-ala-cta">Pricing Page - À La Carte CTA (pricing-ala-cta)</option>
+                                <option value="pricing-compare-table">Pricing Page - Compare Table (pricing-compare-table)</option>
+                                <option value="pricing-footer-links">Pricing Page - Footer Links (pricing-footer-links)</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <label class="form-label" for="pricingTimeframeSelect" style="margin: 0; white-space: nowrap; font-size: 0.85rem; font-weight: 600;">Time Frame:</label>
+                            <select id="pricingTimeframeSelect" class="form-input" style="font-weight: 600; font-size: 0.85rem; width: 140px;" onchange="window.syncPricingTimeframeUI && window.syncPricingTimeframeUI()">
+                                <option value="all" selected>All Time</option>
+                                <option value="24h">Last 24 Hours</option>
+                                <option value="7d">Last 7 Days</option>
+                                <option value="30d">Last 30 Days</option>
+                                <option value="90d">Last 90 Days</option>
+                                <option value="custom">Custom Range...</option>
+                            </select>
+                            <div id="pricingCustomDateContainer" style="display: none; align-items: center; gap: 0.4rem; background: rgba(0,0,0,0.25); padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                <label for="pricingDateFrom" style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">From:</label>
+                                <input type="date" id="pricingDateFrom" class="form-input" style="font-size: 0.75rem; padding: 0.25rem 0.4rem; width: 130px;">
+                                <label for="pricingDateTo" style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">To:</label>
+                                <input type="date" id="pricingDateTo" class="form-input" style="font-size: 0.75rem; padding: 0.25rem 0.4rem; width: 130px;">
+                            </div>
+                            <button type="button" id="btnApplyPricingTimeframe" class="btn-modal-save" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; background: var(--accent-blue); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;">Apply Filter</button>
+                        </div>
+                        <button type="button" id="btnExportPricingExcel" class="btn-modal-save" style="display: flex; align-items: center; gap: 0.4rem; background: #10b981; color: #fff; border: none; padding: 0.45rem 0.85rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                            <span>Export Excel</span>
+                        </button>
+                    </div>
+
+                    <!-- Data Table -->
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px; text-align: center;">RANK</th>
+                                    <th>USER NAME</th>
+                                    <th>EMAIL / ID</th>
+                                    <th>SUBSCRIPTION DETAILS</th>
+                                    <th style="text-align: center;">INTERACTION COUNT</th>
+                                    <th style="text-align: center;">CONVICTION SCORE</th>
+                                    <th>HABIT COHORT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pricingTbody">
+                                <!-- Dynamic JS injection -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <!-- 4. SLIDING CUSTOMER DETAIL DRAWER -->
@@ -490,6 +600,6 @@
         </div>
     </div>
 
-    <script src="app-v5.js?v=4.0"></script>
+    <script src="app-v5.js?v=5.0"></script>
 </body>
 </html>

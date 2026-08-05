@@ -284,6 +284,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function formatFeatureName(featKey) {
+        if (!featKey) return 'N/A';
+        const str = String(featKey).trim().toLowerCase().replace(/^\//, '');
+        const map = {
+            'indicator-rsi': 'Indicator - RSI',
+            'trades-option': 'Trades - Options',
+            'pivots-fibonacci': 'Pivots - Fibonacci',
+            'analyzer-fno': 'Analyzer - F&O',
+            'rt-main': 'Running Ticker',
+            'bullets-daytrader': 'Day Trader Bullets',
+            'pivots-camarilla': 'Pivots - Camarilla',
+            'indicator-atr': 'Indicator - ATR',
+            'trades-futures': 'Trades - Futures',
+            'indicator-adx': 'Indicator - ADX',
+            'wisdom-dashboard': 'Wisdom Dashboard',
+            'candle-heikin-ashi': 'Candle - Heikin-Ashi',
+            'trades-intraday': 'Trades - Intraday',
+            'pivots-cpr': 'Pivots - CPR',
+            'indicator-kti': 'Indicator - KTI',
+            'analyzer-usp': 'Analyzer - USP',
+            'dashboard-main': 'Dashboard - Main',
+            'dashboard-options': 'Dashboard - Options',
+            'trades-multiday': 'Trades - Multiday',
+            'trades-positional': 'Trades - Positional',
+            'trades-investment': 'Trades - Investment',
+            'trades-previous': 'Trades - Previous Trades',
+            'candle-candlestick': 'Candle - Candlestick',
+            'alerts-expert': 'Expert Alerts',
+            'alerts-eod': 'EOD Alerts',
+            'alerts-eod-followthrough': 'EOD Followthrough',
+            'pricing-page': 'Pricing Page',
+            'pricing-back-link': 'Pricing - Back Link',
+            'pricing-cycle-toggle': 'Pricing - Billing Toggle',
+            'pricing-pro-cta': 'Pricing - Pro Plan CTA',
+            'pricing-genie-cta': 'Pricing - Genie Plan CTA'
+        };
+        if (map[str]) return map[str];
+        return String(featKey).replace('/', '').replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
     // Feature Usage Analytics Calculation for 29 Specific Sub-Page Features
     function getUserProfile(lead) {
         lead = lead || {};
@@ -871,7 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${reason}
                 </td>
                 <td>
-                    <span style="color: rgba(255,255,255,0.7)">${lead.missing_key_feature || 'N/A'}</span>
+                    <span style="color: rgba(255,255,255,0.7)">${escapeHtml(formatFeatureName(lead.missing_key_feature))}</span>
                 </td>
                 <td>
                     <div class="score-cell">
@@ -1087,7 +1127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${reason}
                 </td>
                 <td>
-                    <span style="color: rgba(255,255,255,0.7)">${lead.missing_key_feature || 'N/A'}</span>
+                    <span style="color: rgba(255,255,255,0.7)">${escapeHtml(formatFeatureName(lead.missing_key_feature))}</span>
                 </td>
                 <td>
                     <div class="score-cell" style="width: 100px;">

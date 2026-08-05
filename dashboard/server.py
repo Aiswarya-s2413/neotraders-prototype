@@ -22,6 +22,49 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+FEATURE_DISPLAY_NAMES = {
+    "indicator-rsi": "Indicator - RSI",
+    "trades-option": "Trades - Options",
+    "pivots-fibonacci": "Pivots - Fibonacci",
+    "analyzer-fno": "Analyzer - F&O",
+    "rt-main": "Running Ticker",
+    "bullets-daytrader": "Day Trader Bullets",
+    "pivots-camarilla": "Pivots - Camarilla",
+    "indicator-atr": "Indicator - ATR",
+    "trades-futures": "Trades - Futures",
+    "indicator-adx": "Indicator - ADX",
+    "wisdom-dashboard": "Wisdom Dashboard",
+    "candle-heikin-ashi": "Candle - Heikin-Ashi",
+    "trades-intraday": "Trades - Intraday",
+    "pivots-cpr": "Pivots - CPR",
+    "indicator-kti": "Indicator - KTI",
+    "analyzer-usp": "Analyzer - USP",
+    "dashboard-main": "Dashboard - Main",
+    "dashboard-options": "Dashboard - Options",
+    "trades-multiday": "Trades - Multiday",
+    "trades-positional": "Trades - Positional",
+    "trades-investment": "Trades - Investment",
+    "trades-previous": "Trades - Previous Trades",
+    "candle-candlestick": "Candle - Candlestick",
+    "alerts-expert": "Expert Alerts",
+    "alerts-eod": "EOD Alerts",
+    "alerts-eod-followthrough": "EOD Followthrough",
+    "pricing-page": "Pricing Page",
+    "pricing-back-link": "Pricing - Back Link",
+    "pricing-cycle-toggle": "Pricing - Billing Toggle",
+    "pricing-pro-cta": "Pricing - Pro Plan CTA",
+    "pricing-genie-cta": "Pricing - Genie Plan CTA"
+}
+
+def format_feature_name(feat_key: str) -> str:
+    if not feat_key:
+        return "N/A"
+    feat_lower = str(feat_key).strip().lower().lstrip('/')
+    if feat_lower in FEATURE_DISPLAY_NAMES:
+        return FEATURE_DISPLAY_NAMES[feat_lower]
+    clean = feat_lower.replace('/', ' ').replace('-', ' ').replace('_', ' ')
+    return clean.title()
+
 def generate_trigger_reason(score: dict) -> str:
     """Generates an actionable reason to call based on the lead's data."""
     evaluation = float(score.get("evaluation_score", 0))
@@ -33,8 +76,8 @@ def generate_trigger_reason(score: dict) -> str:
     if friction >= 75:
         return "Churn Risk Alert: High error rates or exploratory confusion."
     if conviction >= 80 and score.get("missing_key_feature"):
-        feature = score.get("missing_key_feature")
-        return f"Upsell Opportunity: Power user missing {feature}."
+        feature_name = format_feature_name(score.get("missing_key_feature"))
+        return f"Upsell Opportunity: Power user missing {feature_name}."
     if conviction >= 50 and score.get("habit_classification") == "Occasional Visitor":
         return "Engagement Drop: Needs intervention to build daily habit."
         
@@ -114,9 +157,12 @@ def fetch_leads():
         lead["subscription_status"] = statuses[hash_val % len(statuses)]
 
         # Diversify missing key feature dynamically so each lead gets a distinct feature gap
-        if not lead.get("missing_key_feature") or lead.get("missing_key_feature") == "/market":
+        raw_feature = lead.get("missing_key_feature")
+        if not raw_feature or raw_feature in ("/market", "market"):
             feat_idx = (hash_val + idx * 7) % len(distinct_missing_features)
-            lead["missing_key_feature"] = distinct_missing_features[feat_idx]
+            raw_feature = distinct_missing_features[feat_idx]
+
+        lead["missing_key_feature"] = format_feature_name(raw_feature)
 
         lead["trigger_reason"] = generate_trigger_reason(lead)
         lead["conversion_probability"] = calculate_probability(lead)

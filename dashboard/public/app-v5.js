@@ -677,12 +677,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Unified render function
     function renderTable() {
+        if (tbody) {
+            renderLeadsTable();
+        }
+        if (powerUsersTbody) {
+            renderPowerUsersTable();
+        }
         if (document.getElementById('pricingTbody')) {
             renderPricingAnalyticsPage();
-        } else if (tbody) {
-            renderLeadsTable();
-        } else if (powerUsersTbody) {
-            renderPowerUsersTable();
         }
     }
 

@@ -454,6 +454,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const reportTimeframeSelect = document.getElementById('reportTimeframeSelect');
         if (!tbody) return;
 
+        syncReportTimeframeUI();
+
         if (!timeframe && reportTimeframeSelect) {
             timeframe = reportTimeframeSelect.value;
         }

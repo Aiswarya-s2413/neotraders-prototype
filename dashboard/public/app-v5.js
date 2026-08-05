@@ -654,18 +654,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Dynamic Sidebar counts calculated from database records
     function updateSidebarMetrics() {
-        // Intelligence counts
-        if (badgeSalesTriggers) badgeSalesTriggers.textContent = allLeads.filter(l => parseFloat(l.evaluation_score || 0) >= 30 || parseFloat(l.high_conviction_score || 0) >= 30).length;
-        if (badgePowerUsers) badgePowerUsers.textContent = allLeads.filter(l => parseFloat(l.high_conviction_score || 0) >= 50).length;
-        if (badgeRenewalRisk) badgeRenewalRisk.textContent = allLeads.filter(l => parseFloat(l.friction_score || 0) >= 50).length;
+        const bST = document.getElementById('badgeSalesTriggers');
+        const bPU = document.getElementById('badgePowerUsers');
+        const bRR = document.getElementById('badgeRenewalRisk');
+        const cDR = document.getElementById('countDailyRitual');
+        const cCU = document.getElementById('countConsistent');
+        const cOV = document.getElementById('countOccasional');
+        const cPP = document.getElementById('countPricingPage');
 
-        // Cohort counts
-        if (countDailyRitual) countDailyRitual.textContent = allLeads.filter(l => l.habit_classification === 'Daily Ritual').length;
-        if (countConsistent) countConsistent.textContent = allLeads.filter(l => l.habit_classification === 'Consistent User').length;
-        if (countOccasional) countOccasional.textContent = allLeads.filter(l => l.habit_classification === 'Occasional Visitor').length;
+        if (bST) bST.textContent = allLeads.filter(l => parseFloat(l.evaluation_score || 0) >= 30 || parseFloat(l.high_conviction_score || 0) >= 30).length;
+        if (bPU) bPU.textContent = allLeads.filter(l => parseFloat(l.high_conviction_score || 0) >= 50).length;
+        if (bRR) bRR.textContent = allLeads.filter(l => parseFloat(l.friction_score || 0) >= 50).length;
 
-        const countPricingPage = document.getElementById('countPricingPage');
-        if (countPricingPage) countPricingPage.textContent = allLeads.filter(l => getLeadFeatureUsageCount(l, 'pricing-page') > 0).length;
+        if (cDR) cDR.textContent = allLeads.filter(l => l.habit_classification === 'Daily Ritual').length;
+        if (cCU) cCU.textContent = allLeads.filter(l => l.habit_classification === 'Consistent User').length;
+        if (cOV) cOV.textContent = allLeads.filter(l => l.habit_classification === 'Occasional Visitor').length;
+
+        if (cPP) cPP.textContent = allLeads.filter(l => getLeadFeatureUsageCount(l, 'pricing-page') > 0).length;
 
         renderCustomCohorts();
     }

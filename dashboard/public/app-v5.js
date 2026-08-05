@@ -1567,19 +1567,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const pricingSearchInput = document.getElementById('pricingSearchInput');
     const btnRefreshPricing = document.getElementById('btnRefreshPricing');
 
-    if (pricingTimeframeSelect) {
-        pricingTimeframeSelect.addEventListener('change', (e) => {
-            if (e.target.value === 'custom') {
-                if (pricingCustomDateContainer) pricingCustomDateContainer.style.display = 'flex';
-                if (pricingDateFrom && !pricingDateFrom.value) {
-                    pricingDateFrom.value = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-                }
-                if (pricingDateTo && !pricingDateTo.value) {
-                    pricingDateTo.value = new Date().toISOString().slice(0, 10);
-                }
-            } else {
-                if (pricingCustomDateContainer) pricingCustomDateContainer.style.display = 'none';
+    function syncPricingTimeframeUI() {
+        const pricingTimeframeSelect = document.getElementById('pricingTimeframeSelect');
+        const pricingCustomDateContainer = document.getElementById('pricingCustomDateContainer');
+        const pricingDateFrom = document.getElementById('pricingDateFrom');
+        const pricingDateTo = document.getElementById('pricingDateTo');
+
+        if (!pricingTimeframeSelect || !pricingCustomDateContainer) return;
+
+        if (pricingTimeframeSelect.value === 'custom') {
+            pricingCustomDateContainer.style.display = 'flex';
+            if (pricingDateFrom && !pricingDateFrom.value) {
+                pricingDateFrom.value = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
             }
+            if (pricingDateTo && !pricingDateTo.value) {
+                pricingDateTo.value = new Date().toISOString().slice(0, 10);
+            }
+        } else {
+            pricingCustomDateContainer.style.display = 'none';
+        }
+    }
+    window.syncPricingTimeframeUI = syncPricingTimeframeUI;
+
+    if (pricingTimeframeSelect) {
+        pricingTimeframeSelect.addEventListener('change', () => {
+            syncPricingTimeframeUI();
             renderPricingAnalyticsPage();
         });
     }
@@ -1932,6 +1944,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load recent events dynamically from database
     async function loadRecentEvents() {
+        if (!eventStreamContainer) return;
         try {
             let url = '/api/recent-events';
             const params = [];

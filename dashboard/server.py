@@ -59,9 +59,12 @@ FEATURE_DISPLAY_NAMES = {
 def format_feature_name(feat_key: str) -> str:
     if not feat_key:
         return "N/A"
-    feat_lower = str(feat_key).strip().lower().lstrip('/')
+    feat_str = str(feat_key).strip().lstrip('/')
+    feat_lower = feat_str.lower()
     if feat_lower in FEATURE_DISPLAY_NAMES:
         return FEATURE_DISPLAY_NAMES[feat_lower]
+    if " - " in feat_str or " " in feat_str:
+        return feat_str
     clean = feat_lower.replace('/', ' ').replace('-', ' ').replace('_', ' ')
     return clean.title()
 

@@ -1604,7 +1604,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnRefreshPricing) {
         btnRefreshPricing.addEventListener('click', () => {
-            fetchLeadsData();
+            loadLeads();
         });
     }
 

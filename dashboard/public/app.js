@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span style="font-size: 0.7rem; color: ${statusBadgeColor}; font-weight: 500;">● ${escapeHtml(profile.status)}</span>
                     </div>
                 </td>
-                <td style="text-align: center;"><span class="pill" style="background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); font-weight: 700;">${item.usageCount} interactions</span></td>
+                <td style="text-align: center;"><span class="pill" style="background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); font-weight: 700;">${item.usageCount}</span></td>
                 <td style="text-align: center;"><span style="font-weight: 600; color: var(--accent-teal);">${Math.round(parseFloat(lead.high_conviction_score || 0))}%</span></td>
                 <td><span style="color: ${tagColor}; font-weight: 500;">${escapeHtml(habitTag)}</span></td>
             `;
@@ -764,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span style="font-size: 0.7rem; color: ${statusBadgeColor}; font-weight: 500;">● ${escapeHtml(profile.status)}</span>
                     </div>
                 </td>
-                <td style="text-align: center;"><span class="pill" style="background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); font-weight: 700;">${item.usageCount} interactions</span></td>
+                <td style="text-align: center;"><span class="pill" style="background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); font-weight: 700;">${item.usageCount}</span></td>
                 <td style="text-align: center;"><span style="font-weight: 600; color: var(--accent-teal);">${Math.round(parseFloat(lead.high_conviction_score || 0))}%</span></td>
                 <td><span style="color: ${tagColor}; font-weight: 500;">${escapeHtml(habitTag)}</span></td>
             `;

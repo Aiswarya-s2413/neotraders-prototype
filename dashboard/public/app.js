@@ -1671,15 +1671,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const sidebarPricingAnalytics = document.getElementById('sidebarPricingAnalytics');
-    if (sidebarPricingAnalytics) {
-        sidebarPricingAnalytics.addEventListener('click', (e) => {
-            if (window.location.pathname.includes('pricing-analytics.html')) return;
-            // If on another page, navigate to standalone pricing analytics page
-            window.location.href = 'pricing-analytics.html';
-        });
-    }
-
     if (sidebarFeatureReports) {
         sidebarFeatureReports.addEventListener('click', (e) => {
             e.preventDefault();
